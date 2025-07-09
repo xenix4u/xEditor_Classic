@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor - Multiline Toolbar Fix</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        /* Critical Fix: Remove the inline flex from toolbar__items */
+        .xeditor-toolbar__items {
+            display: contents !important; /* This makes children act as direct children of toolbar */
+        }
+        
+        /* Force the toolbar to wrap properly */
+        .xeditor-toolbar {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 8px !important;
+            gap: 4px !important;
+            box-sizing: border-box !important;
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #dee2e6 !important;
+        }
+        
+        /* Ensure all toolbar items maintain their size */
+        .xeditor-toolbar > *,
+        .xeditor-toolbar__item,
+        .xeditor-toolbar__dropdown {
+            flex: 0 0 auto !important;
+            margin: 2px !important;
+        }
+        
+        /* Fix toolbar items */
+        .xeditor-toolbar__item,
+        .xeditor-toolbar__dropdown {
+            display: inline-flex !important;
+            align-items: center !important;
+            min-width: 32px !important;
+            height: 32px !important;
+            padding: 4px 8px !important;
+            border: 1px solid transparent !important;
+            border-radius: 4px !important;
+            background-color: transparent !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+        }
+        
+        .xeditor-toolbar__item:hover {
+            background-color: #e9ecef !important;
+            border-color: #dee2e6 !important;
+        }
+        
+        /* Separator styling */
+        .xeditor-toolbar__separator {
+            width: 1px !important;
+            height: 24px !important;
+            margin: 4px 6px !important;
+            background-color: #dee2e6 !important;
+            align-self: center !important;
+        }
+        
+        /* Status area should be on its own line */
+        .xeditor-toolbar__status {
+            flex-basis: 100% !important;
+            margin-left: auto !important;
+            padding: 4px 0 !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+        }
+        
+        /* Editor content area */
+        .xeditor-content {
+            min-height: 400px;
+            padding: 16px;
+            outline: none;
+        }
+        
+        /* Force line breaks at specific positions */
+        .toolbar-line-break {
+            flex-basis: 100% !important;
+            height: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>xEditor - 멀티라인 툴바 수정</h1>
+        
+        <div class="demo-section">
+            <div class="info">
+                <h3>✅ 툴바 멀티라인 수정 사항</h3>
+                <p>• toolbar__items의 display: contents 속성으로 중첩 구조 제거</p>
+                <p>• 툴바 아이템들이 부모 컨테이너에서 직접 wrap되도록 수정</p>
+                <p>• JavaScript로 특정 위치에 줄바꿈 삽입</p>
+            </div>
+            
+            <div id="editor1"></div>
+        </div>
+    </div>
+
+    <script>
+        // Load xEditor CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = './dist/xeditor.min.css';
+        document.head.appendChild(link);
+        
+        // Load xEditor JS
+        const script = document.createElement('script');
+        script.src = './dist/xeditor.min.js';
+        script.onload = function() {
+            // Initialize editor
+            window.editor1 = new xeditor.XEditor({
+                container: '#editor1',
+                height: 400,
+                placeholder: 'Start typing here...',
+                content: `
+                    <h2>멀티라인 툴바가 정상적으로 작동합니다! 🎉</h2>
+                    <p>이제 툴바가 <strong>여러 줄로</strong> 표시되어 모든 도구에 쉽게 접근할 수 있습니다.</p>
+                    <h3>주요 개선사항:</h3>
+                    <ul>
+                        <li>툴바 아이템이 화면 크기에 따라 자동으로 줄바꿈됩니다</li>
+                        <li>논리적인 그룹별로 구분되어 있습니다</li>
+                        <li>모든 기능에 쉽게 접근 가능합니다</li>
+                    </ul>
+                `,
+                onReady: function() {
+                    console.log('Editor ready! Applying multiline fix...');
+                    
+                    // Apply multiline fix after a short delay
+                    setTimeout(applyMultilineFix, 100);
+                }
+            });
+        };
+        document.body.appendChild(script);
+        
+        function applyMultilineFix() {
+            const toolbar = document.querySelector('#editor1 .xeditor-toolbar');
+            if (!toolbar) {
+                console.error('Toolbar not found');
+                return;
+            }
+            
+            // Find all toolbar items (excluding the status area)
+            const items = Array.from(toolbar.children).filter(item => 
+                !item.classList.contains('xeditor-toolbar__status')
+            );
+            
+            console.log(`Found ${items.length} toolbar items`);
+            
+            // Define positions where to insert line breaks
+            // After these item indices (0-based)
+            const breakPositions = [
+                14,  // After first row of formatting tools
+                28,  // After second row of list/block tools
+                42   // After third row of insert tools
+            ];
+            
+            // Insert line breaks from the end to avoid index shifting
+            breakPositions.reverse().forEach(position => {
+                if (position < items.length) {
+                    const lineBreak = document.createElement('div');
+                    lineBreak.className = 'toolbar-line-break';
+                    
+                    // Insert after the specified item
+                    const targetItem = items[position];
+                    if (targetItem && targetItem.nextSibling) {
+                        toolbar.insertBefore(lineBreak, targetItem.nextSibling);
+                    }
+                    
+                    console.log(`Inserted line break after position ${position}`);
+                }
+            });
+            
+            // Alternative approach: Add line breaks after specific separators
+            const separators = toolbar.querySelectorAll('.xeditor-toolbar__separator');
+            const separatorBreakIndices = [4, 9, 14]; // After these separator indices
+            
+            separatorBreakIndices.forEach(index => {
+                if (separators[index]) {
+                    const lineBreak = document.createElement('div');
+                    lineBreak.className = 'toolbar-line-break';
+                    separators[index].insertAdjacentElement('afterend', lineBreak);
+                }
+            });
+            
+            console.log('Multiline toolbar fix applied successfully!');
+        }
+        
+        // Helper function to manually trigger line break if needed
+        window.forceToolbarWrap = function() {
+            const toolbar = document.querySelector('#editor1 .xeditor-toolbar');
+            if (toolbar) {
+                // Remove any existing line breaks
+                toolbar.querySelectorAll('.toolbar-line-break').forEach(br => br.remove());
+                
+                // Reapply the fix
+                applyMultilineFix();
+            }
+        };
+    </script>
+</body>
+</html>

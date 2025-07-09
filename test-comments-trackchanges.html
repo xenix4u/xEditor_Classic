@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor - Comments & Track Changes Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .editor-container {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .demo-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .demo-controls label {
+            display: inline-block;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+        
+        .demo-controls input {
+            margin-right: 5px;
+        }
+        
+        .demo-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .demo-info h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        
+        .demo-info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>xEditor - Comments & Track Changes Demo</h1>
+        
+        <div class="demo-controls">
+            <label>
+                <input type="checkbox" id="enableComments" checked> Enable Comments
+            </label>
+            <label>
+                <input type="checkbox" id="enableTrackChanges"> Enable Track Changes
+            </label>
+            <label>
+                Current User: <input type="text" id="currentUser" value="John Doe" style="padding: 4px;">
+            </label>
+        </div>
+        
+        <div id="editor" class="editor-container"></div>
+        
+        <div class="demo-info">
+            <h3>How to use:</h3>
+            <ul>
+                <li><strong>Comments:</strong>
+                    <ul>
+                        <li>Select any text and click the Comment button in the toolbar</li>
+                        <li>Click on highlighted text to view the comment thread</li>
+                        <li>Reply to comments in the side panel</li>
+                        <li>Edit or delete your own comments</li>
+                        <li>Use Ctrl+Alt+M (or Cmd+Alt+M on Mac) to add a comment</li>
+                    </ul>
+                </li>
+                <li><strong>Track Changes:</strong>
+                    <ul>
+                        <li>Click the Track Changes button to start tracking</li>
+                        <li>All edits will be marked with author colors</li>
+                        <li>View all changes in the changes panel</li>
+                        <li>Accept or reject individual changes</li>
+                        <li>Use Ctrl+Shift+E (or Cmd+Shift+E on Mac) to toggle tracking</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { XEditor } from './dist/xeditor.esm.js';
+        
+        // Initial content
+        const initialContent = `
+            <h2>Welcome to xEditor Comments & Track Changes Demo</h2>
+            <p>This is a demonstration of the new commenting and change tracking features in xEditor. You can add comments to any selected text and track all changes made to the document.</p>
+            
+            <h3>Features</h3>
+            <ul>
+                <li>Add comments to selected text</li>
+                <li>Reply to existing comments</li>
+                <li>Track insertions and deletions</li>
+                <li>Accept or reject changes</li>
+                <li>Multiple author support with color coding</li>
+            </ul>
+            
+            <p>Try selecting some text and adding a comment, or enable track changes to see how edits are recorded!</p>
+        `;
+        
+        // Initialize editor
+        let editor = new XEditor({
+            container: '#editor',
+            height: '500px',
+            comments: {
+                enabled: document.getElementById('enableComments').checked,
+                currentUser: document.getElementById('currentUser').value,
+                sidePanel: true,
+                allowReplies: true,
+                allowEdit: true,
+                allowDelete: true,
+                onCommentAdd: (comment) => {
+                    console.log('Comment added:', comment);
+                },
+                onCommentUpdate: (comment) => {
+                    console.log('Comment updated:', comment);
+                },
+                onCommentDelete: (commentId) => {
+                    console.log('Comment deleted:', commentId);
+                }
+            },
+            trackChanges: {
+                enabled: document.getElementById('enableTrackChanges').checked,
+                currentUser: document.getElementById('currentUser').value,
+                showAuthors: true,
+                showTimestamps: true,
+                authorColors: {
+                    'John Doe': '#3498db',
+                    'Jane Smith': '#e74c3c',
+                    'Bob Johnson': '#2ecc71'
+                },
+                onChangeAdd: (change) => {
+                    console.log('Change added:', change);
+                },
+                onChangeAccept: (changeId) => {
+                    console.log('Change accepted:', changeId);
+                },
+                onChangeReject: (changeId) => {
+                    console.log('Change rejected:', changeId);
+                }
+            }
+        });
+        
+        // Set initial content
+        editor.setContent(initialContent);
+        
+        // Handle control changes
+        document.getElementById('enableComments').addEventListener('change', (e) => {
+            // Would need to reinitialize editor with new config
+            console.log('Comments enabled:', e.target.checked);
+        });
+        
+        document.getElementById('enableTrackChanges').addEventListener('change', (e) => {
+            // Toggle tracking directly
+            const trackChangesPlugin = editor.plugins.get('trackChanges');
+            if (trackChangesPlugin && e.target.checked !== trackChangesPlugin.isTracking) {
+                editor.execCommand('toggleTracking');
+            }
+        });
+        
+        document.getElementById('currentUser').addEventListener('change', (e) => {
+            // Update current user in plugins
+            const commentsPlugin = editor.plugins.get('comments');
+            const trackChangesPlugin = editor.plugins.get('trackChanges');
+            
+            if (commentsPlugin) {
+                commentsPlugin.config.currentUser = e.target.value;
+            }
+            if (trackChangesPlugin) {
+                trackChangesPlugin.config.currentUser = e.target.value;
+            }
+        });
+        
+        // Listen to editor events
+        editor.on('comment:add', (comment) => {
+            console.log('Editor event - Comment added:', comment);
+        });
+        
+        editor.on('trackchanges:start', () => {
+            console.log('Track changes started');
+            document.getElementById('enableTrackChanges').checked = true;
+        });
+        
+        editor.on('trackchanges:stop', () => {
+            console.log('Track changes stopped');
+            document.getElementById('enableTrackChanges').checked = false;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Demo - Responsive Toolbar</title>
+    <link rel="stylesheet" href="./dist/xeditor.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        h1 {
+            margin: 0;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            font-size: 24px;
+        }
+        .tabs {
+            display: flex;
+            background-color: #f0f0f0;
+            border-bottom: 2px solid #ddd;
+        }
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .tab:hover {
+            background-color: #e0e0e0;
+        }
+        .tab.active {
+            background-color: white;
+            border-bottom: 2px solid #007bff;
+            margin-bottom: -2px;
+        }
+        .editor-container {
+            padding: 20px;
+        }
+        .editor-wrapper {
+            display: none;
+        }
+        .editor-wrapper.active {
+            display: block;
+        }
+        #editor1, #editor2, #editor3 {
+            height: 500px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .info {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #007bff;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        /* 커스텀 툴바 그룹 스타일 */
+        .xeditor-toolbar-group {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 4px;
+            border-right: 1px solid #ddd;
+        }
+        .xeditor-toolbar-group:last-child {
+            border-right: none;
+        }
+        /* 반응형 툴바 */
+        @media (max-width: 900px) {
+            .xeditor-toolbar {
+                padding: 6px;
+            }
+            .xeditor-toolbar__text {
+                display: none;
+            }
+            .xeditor-toolbar__dropdown-trigger .xeditor-toolbar__text {
+                display: inline;
+            }
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 20px;
+                padding: 15px;
+            }
+            .tab {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+            .editor-container {
+                padding: 15px;
+            }
+            #editor1, #editor2, #editor3 {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>xEditor - 반응형 툴바 데모</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(0)">기본 툴바</button>
+            <button class="tab" onclick="switchTab(1)">확장 툴바</button>
+            <button class="tab" onclick="switchTab(2)">커스텀 툴바</button>
+        </div>
+        
+        <div class="editor-container">
+            <!-- 기본 툴바 -->
+            <div class="editor-wrapper active">
+                <div class="info">
+                    <strong>기본 툴바:</strong> 가장 자주 사용되는 필수 기능만 포함된 간단한 툴바입니다.
+                </div>
+                <div id="editor1"></div>
+            </div>
+            
+            <!-- 확장 툴바 -->
+            <div class="editor-wrapper">
+                <div class="info">
+                    <strong>확장 툴바:</strong> 더 많은 서식 옵션과 고급 기능이 포함된 툴바입니다.
+                </div>
+                <div id="editor2"></div>
+            </div>
+            
+            <!-- 커스텀 툴바 -->
+            <div class="editor-wrapper">
+                <div class="info">
+                    <strong>커스텀 툴바:</strong> 특정 용도에 맞게 선택된 기능들로 구성된 툴바입니다.
+                </div>
+                <div id="editor3"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="./dist/xeditor.min.js"></script>
+    <script>
+        // 에디터 인스턴스들
+        let editors = [];
+        
+        // 기본 플러그인 설정
+        const commonPluginConfig = {
+            inlineToolbar: {
+                enabled: true,
+                buttons: ['bold', 'italic', 'underline', 'link']
+            },
+            charLimit: {
+                maxChars: 10000,
+                showCounter: true
+            },
+            quickInsert: {
+                trigger: '/',
+                maxItems: 8
+            },
+            autoSave: {
+                enabled: true,
+                interval: 60000,
+                showStatus: true
+            }
+        };
+        
+        // 샘플 콘텐츠
+        const sampleContent = `
+            <h2>xEditor를 사용해 보세요!</h2>
+            <p>이 에디터는 다양한 툴바 구성을 지원합니다. 화면 크기에 따라 툴바가 자동으로 조정됩니다.</p>
+            <ul>
+                <li>텍스트를 선택하면 <strong>인라인 툴바</strong>가 나타납니다</li>
+                <li>새 줄에서 <code>/</code>를 입력하면 Quick Insert 메뉴가 나타납니다</li>
+                <li>에디터 하단에서 문자수를 확인할 수 있습니다</li>
+            </ul>
+            <p>지금 바로 편집을 시작해보세요! ✨</p>
+        `;
+        
+        // 에디터 1: 기본 툴바
+        editors[0] = new xeditor.XEditor({
+            container: '#editor1',
+            content: sampleContent,
+            toolbar: {
+                items: [
+                    'bold', 'italic', 'underline', '|',
+                    'heading', 'paragraph', '|',
+                    'orderedList', 'unorderedList', '|',
+                    'link', 'image', '|',
+                    'undo', 'redo'
+                ]
+            },
+            ...commonPluginConfig
+        });
+        
+        // 에디터 2: 확장 툴바
+        editors[1] = new xeditor.XEditor({
+            container: '#editor2',
+            content: sampleContent,
+            toolbar: {
+                items: [
+                    'bold', 'italic', 'underline', 'strikethrough', '|',
+                    'heading', 'paragraph', 'blockquote', '|',
+                    'fontFamily', 'fontSize', '|',
+                    'textColor', 'backgroundColor', '|',
+                    'alignLeft', 'alignCenter', 'alignRight', 'alignJustify', '|',
+                    'orderedList', 'unorderedList', 'checklist', '|',
+                    'indent', 'outdent', '|',
+                    'link', 'image', 'video', 'table', '|',
+                    'code', 'horizontalRule', '|',
+                    'findReplace', '|',
+                    'undo', 'redo', '|',
+                    'sourceCode', 'fullscreen'
+                ]
+            },
+            ...commonPluginConfig
+        });
+        
+        // 에디터 3: 커스텀 툴바 (블로그 작성용)
+        editors[2] = new xeditor.XEditor({
+            container: '#editor3',
+            content: sampleContent,
+            toolbar: {
+                items: [
+                    'bold', 'italic', '|',
+                    'heading', '|',
+                    'blockquote', 'code', '|',
+                    'link', 'image', '|',
+                    'emoji', '|',
+                    'markdown', '|',
+                    'statistics', '|',
+                    'print'
+                ]
+            },
+            ...commonPluginConfig,
+            markdown: {
+                enabled: true
+            },
+            statistics: {
+                showWordCount: true,
+                showCharCount: true,
+                showParagraphCount: true
+            }
+        });
+        
+        // 탭 전환 함수
+        function switchTab(index) {
+            // 탭 활성화
+            document.querySelectorAll('.tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+            
+            // 에디터 표시
+            document.querySelectorAll('.editor-wrapper').forEach((wrapper, i) => {
+                wrapper.classList.toggle('active', i === index);
+            });
+        }
+        
+        // 윈도우 크기 변경 감지
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                console.log('Window resized to:', window.innerWidth, 'x', window.innerHeight);
+            }, 250);
+        });
+    </script>
+</body>
+</html>

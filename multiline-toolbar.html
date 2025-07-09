@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor - Multiline Toolbar Solution</title>
+    <link rel="stylesheet" href="./dist/xeditor.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 24px;
+        }
+        
+        /* SOLUTION: 툴바 멀티라인 강제 적용 */
+        .xeditor-toolbar {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* 툴바 아이템이 줄바꿈되도록 설정 */
+        .xeditor-toolbar > * {
+            flex-shrink: 0 !important;
+        }
+        
+        /* 특정 구분선 후 줄바꿈 강제 */
+        .force-line-break {
+            width: 100% !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            visibility: hidden !important;
+        }
+        
+        /* 논리적 그룹별 툴바 */
+        .toolbar-group-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-radius: 4px;
+        }
+        
+        #editor {
+            height: 500px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+        
+        .info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .info h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        
+        .info p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>xEditor - 멀티라인 툴바 해결책</h1>
+        
+        <div class="info">
+            <h3>🎯 해결 방법</h3>
+            <p>1. CSS에서 <code>flex-wrap: wrap</code>을 강제 적용</p>
+            <p>2. 툴바 아이템에 <code>flex-shrink: 0</code> 설정</p>
+            <p>3. 특정 위치에 줄바꿈 요소 삽입</p>
+            <p>4. 논리적 그룹으로 툴바 구성</p>
+        </div>
+        
+        <div id="editor"></div>
+    </div>
+    
+    <script src="./dist/xeditor.min.js"></script>
+    <script>
+        // 커스텀 툴바 아이템 배열 (줄바꿈 포함)
+        const customToolbarItems = [
+            // 첫 번째 줄: 텍스트 서식
+            'bold', 'italic', 'underline', 'strikethrough', '|',
+            'fontFamily', 'fontSize', '|',
+            'textColor', 'backgroundColor', '|',
+            'alignLeft', 'alignCenter', 'alignRight', 'alignJustify',
+            'LINEBREAK', // 커스텀 줄바꿈 마커
+            
+            // 두 번째 줄: 리스트와 블록
+            'orderedList', 'unorderedList', 'checklist', '|',
+            'indent', 'outdent', '|',
+            'heading', 'paragraph', 'blockquote', '|',
+            'code', 'horizontalRule',
+            'LINEBREAK',
+            
+            // 세 번째 줄: 삽입과 도구
+            'link', 'image', 'video', 'table', '|',
+            'emoji', 'specialChars', '|',
+            'findReplace', '|',
+            'undo', 'redo', '|',
+            'sourceCode', 'fullscreen', 'print'
+        ];
+        
+        // 에디터 초기화
+        const editor = new xeditor.XEditor({
+            container: '#editor',
+            toolbar: {
+                items: customToolbarItems.filter(item => item !== 'LINEBREAK')
+            },
+            content: `
+                <h2>멀티라인 툴바가 적용된 xEditor</h2>
+                <p>이제 툴바가 여러 줄로 깔끔하게 표시됩니다. 각 기능 그룹이 논리적으로 구분되어 있어 사용하기 편합니다.</p>
+                <p><strong>특징:</strong></p>
+                <ul>
+                    <li>화면 크기에 따라 자동으로 줄바꿈</li>
+                    <li>논리적 그룹별 구성</li>
+                    <li>모든 기능에 쉽게 접근 가능</li>
+                </ul>
+            `
+        });
+        
+        // DOM이 로드된 후 줄바꿈 요소 삽입
+        setTimeout(() => {
+            const toolbar = editor.toolbar.element;
+            const items = Array.from(toolbar.children);
+            let insertedBreaks = 0;
+            
+            customToolbarItems.forEach((item, index) => {
+                if (item === 'LINEBREAK') {
+                    const actualIndex = index - insertedBreaks;
+                    const lineBreak = document.createElement('div');
+                    lineBreak.className = 'force-line-break';
+                    
+                    if (items[actualIndex]) {
+                        toolbar.insertBefore(lineBreak, items[actualIndex]);
+                    } else {
+                        toolbar.appendChild(lineBreak);
+                    }
+                    insertedBreaks++;
+                }
+            });
+        }, 100);
+        
+        console.log('멀티라인 툴바가 성공적으로 적용되었습니다.');
+    </script>
+</body>
+</html>

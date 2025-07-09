@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor - Toolbar Rows Solution</title>
+    <link rel="stylesheet" href="./dist/xeditor.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .demo-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .toolbar-row {
+            background-color: #e3f2fd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        .toolbar-row h3 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            color: #1976d2;
+        }
+        
+        /* Custom toolbar rows */
+        .xeditor-toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 8px;
+            gap: 4px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .xeditor-toolbar-row:first-child {
+            border-radius: 4px 4px 0 0;
+        }
+        
+        .xeditor-toolbar-row:last-child {
+            border-bottom: none;
+        }
+        
+        /* Hide default toolbar and use custom rows */
+        #editor-custom .xeditor-toolbar {
+            display: none !important;
+        }
+        
+        .custom-toolbar-container {
+            border: 1px solid #dee2e6;
+            border-radius: 4px 4px 0 0;
+            background-color: #f8f9fa;
+        }
+        
+        .custom-toolbar-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            padding: 4px 8px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: transparent;
+            color: #212529;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .custom-toolbar-button:hover {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .custom-toolbar-button:active {
+            transform: translateY(1px);
+        }
+        
+        .custom-toolbar-separator {
+            width: 1px;
+            height: 24px;
+            margin: 0 6px;
+            background-color: #dee2e6;
+        }
+        
+        .editor-wrapper {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        #editor-custom {
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        
+        .info-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>xEditor - 툴바 멀티행 솔루션</h1>
+        
+        <div class="demo-section">
+            <h2>표준 에디터 (CSS 수정 적용)</h2>
+            <div class="info-box">
+                <strong>방법 1:</strong> CSS를 통해 툴바가 자동으로 여러 줄로 나뉘도록 수정했습니다.
+            </div>
+            <div id="editor-standard"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>커스텀 툴바 행 (프로그래밍 방식)</h2>
+            <div class="info-box">
+                <strong>방법 2:</strong> 툴바를 논리적 그룹별로 나누어 각각의 행으로 구성했습니다.
+            </div>
+            
+            <div class="editor-wrapper">
+                <div class="custom-toolbar-container" id="custom-toolbar">
+                    <!-- Row 1: Text Formatting -->
+                    <div class="xeditor-toolbar-row">
+                        <button class="custom-toolbar-button" data-command="bold" title="Bold">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
+                                <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
+                            </svg>
+                        </button>
+                        <button class="custom-toolbar-button" data-command="italic" title="Italic">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="19" y1="4" x2="10" y2="4"></line>
+                                <line x1="14" y1="20" x2="5" y2="20"></line>
+                                <line x1="15" y1="4" x2="9" y2="20"></line>
+                            </svg>
+                        </button>
+                        <button class="custom-toolbar-button" data-command="underline" title="Underline">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path>
+                                <line x1="4" y1="21" x2="20" y2="21"></line>
+                            </svg>
+                        </button>
+                        <button class="custom-toolbar-button" data-command="strikethrough" title="Strikethrough">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="4" y1="12" x2="20" y2="12"></line>
+                                <path d="M16 4H9a3 3 0 0 0 0 6h7m-4 0v8"></path>
+                            </svg>
+                        </button>
+                        <div class="custom-toolbar-separator"></div>
+                        <button class="custom-toolbar-button" data-command="removeFormat" title="Clear Formatting">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 7V4a1 1 0 0 1 1-1h5"></path>
+                                <line x1="14" y1="4" x2="21" y2="4"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                <line x1="8" y1="16" x2="8" y2="20"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Row 2: Lists and Alignment -->
+                    <div class="xeditor-toolbar-row">
+                        <button class="custom-toolbar-button" data-command="insertOrderedList" title="Ordered List">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="10" y1="6" x2="21" y2="6"></line>
+                                <line x1="10" y1="12" x2="21" y2="12"></line>
+                                <line x1="10" y1="18" x2="21" y2="18"></line>
+                                <polyline points="4 6 4 6.01"></polyline>
+                                <polyline points="4 12 4 12.01"></polyline>
+                                <polyline points="4 18 4 18.01"></polyline>
+                            </svg>
+                        </button>
+                        <button class="custom-toolbar-button" data-command="insertUnorderedList" title="Unordered List">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </button>
+                        <div class="custom-toolbar-separator"></div>
+                        <button class="custom-toolbar-button" data-command="justifyLeft" title="Align Left">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="17" y1="10" x2="3" y2="10"></line>
+                                <line x1="21" y1="6" x2="3" y2="6"></line>
+                                <line x1="21" y1="14" x2="3" y2="14"></line>
+                                <line x1="17" y1="18" x2="3" y2="18"></line>
+                            </svg>
+                        </button>
+                        <button class="custom-toolbar-button" data-command="justifyCenter" title="Align Center">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="10" x2="6" y2="10"></line>
+                                <line x1="21" y1="6" x2="3" y2="6"></line>
+                                <line x1="21" y1="14" x2="3" y2="14"></line>
+                                <line x1="18" y1="18" x2="6" y2="18"></line>
+                            </svg>
+                        </button>
+                        <button class="custom-toolbar-button" data-command="justifyRight" title="Align Right">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="21" y1="10" x2="7" y2="10"></line>
+                                <line x1="21" y1="6" x2="3" y2="6"></line>
+                                <line x1="21" y1="14" x2="3" y2="14"></line>
+                                <line x1="21" y1="18" x2="7" y2="18"></line>
+                            </svg>
+                        </button>
+                        <button class="custom-toolbar-button" data-command="justifyFull" title="Justify">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="21" y1="10" x2="3" y2="10"></line>
+                                <line x1="21" y1="6" x2="3" y2="6"></line>
+                                <line x1="21" y1="14" x2="3" y2="14"></line>
+                                <line x1="21" y1="18" x2="3" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Row 3: Insert and Actions -->
+                    <div class="xeditor-toolbar-row">
+                        <button class="custom-toolbar-button" data-command="insertHorizontalRule" title="Horizontal Line">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                            </svg>
+                        </button>
+                        <div class="custom-toolbar-separator"></div>
+                        <button class="custom-toolbar-button" data-command="undo" title="Undo">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 7v6h6"></path>
+                                <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"></path>
+                            </svg>
+                        </button>
+                        <button class="custom-toolbar-button" data-command="redo" title="Redo">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 7v6h-6"></path>
+                                <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="editor-custom"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./dist/xeditor.min.js"></script>
+    <script>
+        // Initialize standard editor
+        const standardEditor = new xeditor.XEditor({
+            container: '#editor-standard',
+            height: 300,
+            content: '<h3>표준 에디터</h3><p>CSS 수정을 통해 툴바가 자동으로 여러 줄로 표시됩니다.</p>'
+        });
+        
+        // Initialize custom editor with hidden toolbar
+        const customEditor = new xeditor.XEditor({
+            container: '#editor-custom',
+            height: 300,
+            toolbar: false, // Hide default toolbar
+            content: '<h3>커스텀 툴바 에디터</h3><p>프로그래밍 방식으로 구성된 멀티행 툴바입니다.</p>'
+        });
+        
+        // Set up custom toolbar buttons
+        document.querySelectorAll('.custom-toolbar-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const command = button.getAttribute('data-command');
+                if (command) {
+                    customEditor.execCommand(command);
+                    customEditor.focus();
+                }
+            });
+        });
+        
+        // Update button states
+        customEditor.on('selectionchange', () => {
+            document.querySelectorAll('.custom-toolbar-button').forEach(button => {
+                const command = button.getAttribute('data-command');
+                if (command) {
+                    const isActive = customEditor.queryCommandState(command);
+                    if (isActive) {
+                        button.style.backgroundColor = '#007bff';
+                        button.style.color = 'white';
+                    } else {
+                        button.style.backgroundColor = 'transparent';
+                        button.style.color = '#212529';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

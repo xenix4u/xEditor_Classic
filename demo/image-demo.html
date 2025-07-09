@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XEditor - Image Upload Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .config-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .config-option {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .config-option label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .config-option input,
+        .config-option select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .config-option small {
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .image-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .feature-list li {
+            padding: 5px 0;
+            color: #555;
+        }
+        
+        .feature-list li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>XEditor - Image Upload Demo</h1>
+        <p class="description">Test the enhanced image upload functionality with automatic resizing and drag-and-drop support.</p>
+        
+        <div class="demo-section">
+            <h2>Configuration Options</h2>
+            <div class="config-options">
+                <div class="config-option">
+                    <label for="maxWidth">Max Width (px)</label>
+                    <input type="number" id="maxWidth" value="800" min="100" max="2000">
+                    <small>Maximum width for uploaded images</small>
+                </div>
+                
+                <div class="config-option">
+                    <label for="maxSize">Max File Size (MB)</label>
+                    <input type="number" id="maxSize" value="5" min="1" max="20">
+                    <small>Maximum file size allowed</small>
+                </div>
+                
+                <div class="config-option">
+                    <label for="quality">JPEG Quality</label>
+                    <input type="number" id="quality" value="0.85" min="0.1" max="1" step="0.05">
+                    <small>Quality for JPEG compression (0-1)</small>
+                </div>
+                
+                <div class="config-option">
+                    <label for="resizeBeforeUpload">Resize Before Upload</label>
+                    <select id="resizeBeforeUpload">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                    <small>Resize images before uploading</small>
+                </div>
+            </div>
+            
+            <button onclick="initEditor()">Apply Configuration</button>
+            <button onclick="showImageInfo()">Show Image Info</button>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Editor with Image Support</h2>
+            
+            <ul class="feature-list">
+                <li>Drag and drop images directly into the editor</li>
+                <li>Paste images from clipboard (Ctrl/Cmd + V)</li>
+                <li>Click the image button in toolbar to upload</li>
+                <li>Images are automatically resized to max width while maintaining aspect ratio</li>
+                <li>Click on inserted images to resize them with handles</li>
+            </ul>
+            
+            <div id="editor"></div>
+            
+            <div id="imageInfo" class="image-info" style="display: none;"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Test Images</h2>
+            <p>Try dragging these sample images into the editor above:</p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <img src="https://via.placeholder.com/300x200/007bff/ffffff?text=Sample+1" 
+                     draggable="true" 
+                     style="width: 150px; cursor: grab; border: 2px solid #ddd; border-radius: 4px;">
+                <img src="https://via.placeholder.com/400x300/28a745/ffffff?text=Sample+2" 
+                     draggable="true" 
+                     style="width: 150px; cursor: grab; border: 2px solid #ddd; border-radius: 4px;">
+                <img src="https://via.placeholder.com/500x350/dc3545/ffffff?text=Sample+3" 
+                     draggable="true" 
+                     style="width: 150px; cursor: grab; border: 2px solid #ddd; border-radius: 4px;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editor;
+        
+        function initEditor() {
+            // Destroy existing editor if any
+            if (editor) {
+                editor.destroy();
+            }
+            
+            // Get configuration values
+            const maxWidth = parseInt(document.getElementById('maxWidth').value);
+            const maxSize = parseInt(document.getElementById('maxSize').value);
+            const quality = parseFloat(document.getElementById('quality').value);
+            const resizeBeforeUpload = document.getElementById('resizeBeforeUpload').value === 'true';
+            
+            // Create new editor with configuration
+            editor = new XEditor({
+                container: '#editor',
+                height: 400,
+                placeholder: 'Type here or drag and drop images...',
+                image: {
+                    maxWidth: maxWidth,
+                    maxSize: maxSize,
+                    quality: quality,
+                    resizeBeforeUpload: resizeBeforeUpload,
+                    upload: async (file) => {
+                        // Simulate upload delay
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        // In real implementation, upload to server
+                        // For demo, return data URL
+                        return new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                },
+                onChange: (content) => {
+                    console.log('Content changed');
+                }
+            });
+            
+            console.log('Editor initialized with config:', {
+                maxWidth,
+                maxSize,
+                quality,
+                resizeBeforeUpload
+            });
+        }
+        
+        function showImageInfo() {
+            const content = editor.getContent();
+            const div = document.createElement('div');
+            div.innerHTML = content;
+            
+            const images = div.querySelectorAll('img');
+            const info = document.getElementById('imageInfo');
+            
+            if (images.length === 0) {
+                info.style.display = 'none';
+                return;
+            }
+            
+            let infoHtml = `<strong>Images in Editor (${images.length}):</strong>\n\n`;
+            
+            images.forEach((img, index) => {
+                const src = img.src;
+                const isDataUrl = src.startsWith('data:');
+                const size = isDataUrl ? Math.round(src.length * 0.75 / 1024) : 'N/A';
+                
+                infoHtml += `Image ${index + 1}:\n`;
+                infoHtml += `  - Type: ${isDataUrl ? 'Data URL' : 'External URL'}\n`;
+                infoHtml += `  - Style Width: ${img.style.width || 'auto'}\n`;
+                infoHtml += `  - Style Max Width: ${img.style.maxWidth || 'none'}\n`;
+                infoHtml += `  - Alt Text: ${img.alt || '(none)'}\n`;
+                if (isDataUrl) {
+                    infoHtml += `  - Approximate Size: ${size} KB\n`;
+                }
+                infoHtml += '\n';
+            });
+            
+            info.textContent = infoHtml;
+            info.style.display = 'block';
+        }
+        
+        // Initialize editor on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initEditor();
+        });
+    </script>
+</body>
+</html>

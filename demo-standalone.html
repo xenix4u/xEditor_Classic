@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Demo - Standalone</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .demo-controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .demo-controls button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .demo-controls button:hover {
+            background-color: #f0f0f0;
+        }
+        
+        h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        
+        /* 에디터 스타일 */
+        .xeditor-wrapper {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        /* 핵심: 툴바 멀티라인 스타일 */
+        .xeditor-toolbar {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: flex-start !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 8px !important;
+            gap: 4px !important;
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #dee2e6 !important;
+        }
+        
+        .xeditor-toolbar > * {
+            flex: 0 0 auto !important;
+            margin: 2px !important;
+        }
+        
+        .xeditor-toolbar__item,
+        .xeditor-toolbar__dropdown {
+            display: inline-flex !important;
+            align-items: center !important;
+            min-width: 32px !important;
+            height: 32px !important;
+            padding: 4px 8px !important;
+            border: 1px solid transparent !important;
+            border-radius: 4px !important;
+            background-color: transparent !important;
+            cursor: pointer !important;
+        }
+        
+        .xeditor-toolbar__item:hover {
+            background-color: #e9ecef !important;
+            border-color: #dee2e6 !important;
+        }
+        
+        .xeditor-toolbar__separator {
+            width: 1px !important;
+            height: 24px !important;
+            margin: 4px 6px !important;
+            background-color: #dee2e6 !important;
+            align-self: center !important;
+        }
+        
+        .xeditor-content {
+            min-height: 300px;
+            padding: 16px;
+            outline: none;
+        }
+        
+        .xeditor-content[contenteditable="true"]:focus {
+            outline: none;
+        }
+        
+        /* 강제 줄바꿈 헬퍼 */
+        .toolbar-line-break {
+            flex-basis: 100% !important;
+            height: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>xEditor Demo - 멀티라인 툴바</h1>
+        
+        <div class="demo-section">
+            <h2>Basic Editor with Multiline Toolbar</h2>
+            <div id="editor1"></div>
+            
+            <div class="demo-controls">
+                <button onclick="getContent()">Get Content</button>
+                <button onclick="setContent()">Set Sample Content</button>
+                <button onclick="clearContent()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- xEditor 직접 로드 -->
+    <script>
+        // xEditor가 로드될 때까지 대기
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        function loadCSS(href) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            document.head.appendChild(link);
+        }
+        
+        // CSS와 JS 로드
+        loadCSS('./dist/xeditor.min.css');
+        
+        loadScript('./dist/xeditor.min.js').then(() => {
+            console.log('xEditor loaded');
+            
+            // 에디터 초기화
+            window.editor1 = new xeditor.XEditor({
+                container: '#editor1',
+                height: 400,
+                placeholder: 'Start typing here...',
+                onChange: function(content) {
+                    console.log('Content changed:', content.length + ' characters');
+                },
+                onReady: function() {
+                    console.log('Editor ready!');
+                    
+                    // 툴바에 강제 줄바꿈 추가
+                    setTimeout(() => {
+                        const toolbar = document.querySelector('#editor1 .xeditor-toolbar');
+                        if (toolbar) {
+                            const items = Array.from(toolbar.children);
+                            let nonSeparatorCount = 0;
+                            
+                            // 각 아이템을 순회하면서 줄바꿈 추가
+                            for (let i = 0; i < items.length; i++) {
+                                const item = items[i];
+                                
+                                if (!item.classList.contains('xeditor-toolbar__separator')) {
+                                    nonSeparatorCount++;
+                                    
+                                    // 12개 아이템마다 줄바꿈
+                                    if (nonSeparatorCount > 0 && nonSeparatorCount % 12 === 0) {
+                                        const lineBreak = document.createElement('div');
+                                        lineBreak.className = 'toolbar-line-break';
+                                        toolbar.insertBefore(lineBreak, item.nextSibling);
+                                    }
+                                }
+                            }
+                            
+                            console.log('Toolbar multiline setup complete');
+                        }
+                    }, 100);
+                }
+            });
+        }).catch(error => {
+            console.error('Failed to load xEditor:', error);
+        });
+        
+        // 헬퍼 함수들
+        function getContent() {
+            if (window.editor1) {
+                const content = window.editor1.getContent();
+                console.log('Content:', content);
+                alert('Content logged to console');
+            }
+        }
+        
+        function setContent() {
+            if (window.editor1) {
+                const sampleContent = `
+                    <h1>Welcome to xEditor!</h1>
+                    <p>This is a <strong>powerful</strong> and <em>flexible</em> WYSIWYG editor with a multiline toolbar.</p>
+                    <h2>Features</h2>
+                    <ul>
+                        <li>Rich text formatting</li>
+                        <li>Multiline toolbar layout</li>
+                        <li>All tools easily accessible</li>
+                    </ul>
+                `;
+                window.editor1.setContent(sampleContent.trim());
+            }
+        }
+        
+        function clearContent() {
+            if (window.editor1) {
+                window.editor1.setContent('');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+:root {
+  --xeditor-primary: #007bff;
+  --xeditor-primary-hover: #0056b3;
+  --xeditor-bg: #ffffff;
+  --xeditor-border: #dee2e6;
+  --xeditor-text: #212529;
+  --xeditor-toolbar-bg: #f8f9fa;
+  --xeditor-toolbar-border: #dee2e6;
+  --xeditor-dropdown-bg: #ffffff;
+  --xeditor-dropdown-shadow: rgba(0, 0, 0, 0.3);
+  --xeditor-active: #e9ecef;
+  --xeditor-disabled: #6c757d;
+  --xeditor-focus-outline: rgba(0, 123, 255, 0.25);
+}
+
+[data-theme="dark"] {
+  --xeditor-primary: #0d6efd;
+  --xeditor-primary-hover: #0a58ca;
+  --xeditor-bg: #212529;
+  --xeditor-border: #495057;
+  --xeditor-text: #f8f9fa;
+  --xeditor-toolbar-bg: #343a40;
+  --xeditor-toolbar-border: #495057;
+  --xeditor-dropdown-bg: #2c3136;
+  --xeditor-dropdown-shadow: rgba(0, 0, 0, 0.8);
+  --xeditor-active: #495057;
+  --xeditor-disabled: #adb5bd;
+}
+
+.xeditor-wrapper {
+  position: relative;
+  border: 1px solid var(--xeditor-border);
+  border-radius: 4px;
+  background-color: var(--xeditor-bg);
+  color: var(--xeditor-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  overflow: visible;
+}
+
+.xeditor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: 8px;
+  background-color: var(--xeditor-toolbar-bg);
+  border-bottom: 1px solid var(--xeditor-toolbar-border);
+  border-radius: 4px 4px 0 0;
+  gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
+  min-height: 40px;
+}
+
+.xeditor-toolbar--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.xeditor-toolbar--floating {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  border: 1px solid var(--xeditor-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px var(--xeditor-dropdown-shadow);
+}
+
+.xeditor-toolbar--hidden {
+  display: none;
+}
+
+.xeditor-toolbar__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--xeditor-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  margin-bottom: 4px;
+}
+
+.xeditor-toolbar__item:hover:not(:disabled) {
+  background-color: var(--xeditor-active);
+  border-color: var(--xeditor-border);
+}
+
+.xeditor-toolbar__item:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.xeditor-toolbar__item--active {
+  background-color: var(--xeditor-primary);
+  color: white;
+}
+
+.xeditor-toolbar__item--active:hover {
+  background-color: var(--xeditor-primary-hover);
+}
+
+.xeditor-toolbar__item--disabled,
+.xeditor-toolbar__item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.xeditor-toolbar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.xeditor-toolbar__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.xeditor-toolbar__text {
+  margin-left: 4px;
+  font-size: 14px;
+}
+
+.xeditor-toolbar__separator {
+  width: 1px;
+  height: 24px;
+  margin: 0 4px;
+  background-color: var(--xeditor-border);
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.xeditor-toolbar__dropdown {
+  position: relative;
+  flex: 0 0 auto;
+  margin-bottom: 4px;
+}
+
+.xeditor-toolbar__dropdown-trigger {
+  padding-right: 20px;
+}
+
+.xeditor-toolbar__dropdown-arrow {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.xeditor-toolbar__dropdown-arrow svg {
+  width: 8px;
+  height: 8px;
+}
+
+.xeditor-toolbar__dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 150px;
+  margin-top: 4px;
+  padding: 6px;
+  background-color: var(--xeditor-dropdown-bg);
+  border: 1px solid var(--xeditor-border);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px var(--xeditor-dropdown-shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 10000;
+}
+
+.xeditor-toolbar__dropdown--open .xeditor-toolbar__dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.xeditor-toolbar__dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--xeditor-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-weight: 500;
+}
+
+.xeditor-toolbar__dropdown-item:hover {
+  background-color: var(--xeditor-active);
+}
+
+/* Ensure dropdown menu has solid background in all scenarios */
+.xeditor-toolbar__dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--xeditor-dropdown-bg);
+  border-radius: 4px;
+  z-index: -1;
+}
+
+.xeditor-content {
+  position: relative;
+  min-height: 200px;
+  padding: 16px;
+  background-color: var(--xeditor-bg);
+  color: var(--xeditor-text);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-y: auto;
+  outline: none;
+}
+
+.xeditor-content:focus {
+  box-shadow: 0 0 0 3px var(--xeditor-focus-outline);
+}
+
+.xeditor-content:empty:not(:focus)::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  color: var(--xeditor-disabled);
+  pointer-events: none;
+}
+
+.xeditor-content h1,
+.xeditor-content h2,
+.xeditor-content h3,
+.xeditor-content h4,
+.xeditor-content h5,
+.xeditor-content h6 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.xeditor-content h1 { font-size: 2em; }
+.xeditor-content h2 { font-size: 1.5em; }
+.xeditor-content h3 { font-size: 1.17em; }
+.xeditor-content h4 { font-size: 1em; }
+.xeditor-content h5 { font-size: 0.83em; }
+.xeditor-content h6 { font-size: 0.67em; }
+
+.xeditor-content p {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+.xeditor-content ul,
+.xeditor-content ol {
+  margin-top: 0;
+  margin-bottom: 1em;
+  padding-left: 2em;
+}
+
+.xeditor-content li {
+  margin-bottom: 0.25em;
+}
+
+.xeditor-content blockquote {
+  margin: 0 0 1em 0;
+  padding-left: 1em;
+  border-left: 4px solid var(--xeditor-border);
+  color: var(--xeditor-disabled);
+}
+
+.xeditor-content pre {
+  margin: 0 0 1em 0;
+  padding: 1em;
+  background-color: var(--xeditor-toolbar-bg);
+  border: 1px solid var(--xeditor-border);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.xeditor-content code {
+  padding: 0.2em 0.4em;
+  background-color: var(--xeditor-toolbar-bg);
+  border-radius: 3px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.xeditor-content pre code {
+  padding: 0;
+  background-color: transparent;
+}
+
+.xeditor-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.xeditor-content a {
+  color: var(--xeditor-primary);
+  text-decoration: underline;
+}
+
+.xeditor-content a:hover {
+  color: var(--xeditor-primary-hover);
+}
+
+.xeditor-content table {
+  width: 100%;
+  margin-bottom: 1em;
+  border-collapse: collapse;
+}
+
+.xeditor-content th,
+.xeditor-content td {
+  padding: 8px;
+  border: 1px solid var(--xeditor-border);
+}
+
+.xeditor-content th {
+  background-color: var(--xeditor-toolbar-bg);
+  font-weight: 600;
+}
+
+/* Toolbar Grouping */
+.xeditor-toolbar-group {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 2px;
+  margin-right: 8px;
+}
+
+.xeditor-toolbar-group:last-child {
+  margin-right: 0;
+}
+
+/* Force toolbar wrapping on smaller screens */
+@media (max-width: 1400px) {
+  .xeditor-toolbar {
+    max-height: none;
+  }
+}
+
+/* Ensure toolbar can expand vertically */
+.xeditor-toolbar {
+  min-height: auto;
+  max-height: none;
+  height: auto;
+}
+
+/* Toolbar container should allow wrapping */
+.xeditor-wrapper {
+  min-height: auto;
+}
+
+/* On smaller screens, force more aggressive wrapping */
+@media (max-width: 1600px) {
+  .xeditor-toolbar {
+    max-width: 100%;
+  }
+  
+  /* Add margin to create visual separation between rows */
+  .xeditor-toolbar__item,
+  .xeditor-toolbar__dropdown {
+    margin: 2px;
+  }
+}
+
+/* Toolbar items container - use contents to allow direct wrapping */
+.xeditor-toolbar__items {
+  display: contents;
+}
+
+/* Toolbar status area - force to new line */
+.xeditor-toolbar__status {
+  flex-basis: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 4px 0;
+}
+
+/* Auto-save status area */
+.xeditor-autosave-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--xeditor-disabled);
+  flex-shrink: 0;
+}
+
+/* Toolbar Overflow Management */
+.xeditor-toolbar-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.xeditor-toolbar-scroll {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--xeditor-border) transparent;
+}
+
+.xeditor-toolbar-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.xeditor-toolbar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.xeditor-toolbar-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--xeditor-border);
+  border-radius: 2px;
+}
+
+/* Priority-based responsive hiding */
+@media (max-width: 1200px) {
+  .xeditor-toolbar__item--low-priority {
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .xeditor-toolbar__item--medium-priority {
+    display: none !important;
+  }
+  
+  .xeditor-toolbar__text {
+    display: none;
+  }
+  
+  .xeditor-toolbar__dropdown-trigger .xeditor-toolbar__text {
+    display: inline-block;
+  }
+}
+
+@media (max-width: 600px) {
+  .xeditor-toolbar {
+    gap: 2px;
+    padding: 6px;
+  }
+  
+  .xeditor-toolbar__separator {
+    margin: 0 1px;
+  }
+}
+
+@media (max-width: 768px) {
+  .xeditor-toolbar {
+    padding: 4px;
+  }
+  
+  .xeditor-toolbar__item {
+    min-width: 26px;
+    height: 26px;
+    padding: 2px 4px;
+    font-size: 11px;
+  }
+  
+  .xeditor-toolbar__icon {
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+  }
+  
+  .xeditor-toolbar__icon svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .xeditor-content {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+/* Notification styles */
+.xeditor-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  background-color: #333;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  max-width: 300px;
+  font-size: 14px;
+  line-height: 1.4;
+  transition: opacity 0.3s ease;
+}
+
+.xeditor-notification--error {
+  background-color: #dc3545;
+}
+
+.xeditor-notification--success {
+  background-color: #28a745;
+}
+
+.xeditor-notification--warning {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.xeditor-notification--fade-out {
+  opacity: 0;
+}

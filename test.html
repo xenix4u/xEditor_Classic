@@ -1,0 +1,34 @@
+<\!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XEditor Test</title>
+    <link rel="stylesheet" href="dist/xeditor.min.css">
+    <script src="dist/xeditor.min.js"></script>
+</head>
+<body>
+    <h1>XEditor Test Page</h1>
+    <div id="editor"></div>
+    
+    <script>
+        console.log('XEditor available:', typeof XEditor);
+        
+        if (typeof XEditor \!== 'undefined') {
+            try {
+                const editor = new XEditor({
+                    container: '#editor',
+                    height: 400,
+                    placeholder: 'Start typing...'
+                });
+                console.log('Editor initialized:', editor);
+            } catch (error) {
+                console.error('Error initializing editor:', error);
+            }
+        } else {
+            console.error('XEditor is not defined\!');
+        }
+    </script>
+</body>
+</html>
+EOF < /dev/null

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Alignment Test</title>
+    <link rel="stylesheet" href="dist/xeditor.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #editor {
+            margin-top: 20px;
+        }
+        .test-controls {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        .test-controls button {
+            margin: 5px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-controls button:hover {
+            background: #0056b3;
+        }
+        .test-output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>xEditor Alignment Test</h1>
+    <div id="editor"></div>
+    
+    <div class="test-controls">
+        <h3>Direct Command Tests</h3>
+        <button onclick="testAlignLeft()">Test Align Left</button>
+        <button onclick="testAlignCenter()">Test Align Center</button>
+        <button onclick="testAlignRight()">Test Align Right</button>
+        <button onclick="testAlignJustify()">Test Align Justify</button>
+        <button onclick="checkCommandStates()">Check Command States</button>
+        <button onclick="debugSelection()">Debug Selection</button>
+    </div>
+    
+    <div class="test-output" id="output"></div>
+    
+    <script src="dist/xeditor.min.js"></script>
+    <script>
+        // Initialize the editor
+        const editor = new XEditor({
+            container: '#editor',
+            height: '400px',
+            placeholder: 'Type some text here to test alignment...',
+            onReady: () => {
+                console.log('Editor is ready!');
+                editor.setContent('<p>This is a test paragraph. You can select this text and test the alignment buttons above.</p><p>This is another paragraph to test multiple paragraph alignment.</p>');
+            }
+        });
+        
+        // Make editor available globally for testing
+        window.editor = editor;
+        
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            output.textContent += message + '\n';
+            console.log(message);
+        }
+        
+        function clearLog() {
+            output.textContent = '';
+        }
+        
+        function testAlignLeft() {
+            clearLog();
+            log('Testing Align Left...');
+            try {
+                // Ensure editor has focus
+                editor.focus();
+                
+                // Execute command
+                editor.execCommand('justifyLeft');
+                log('✓ Command executed successfully');
+                
+                // Check state
+                const state = editor.queryCommandState('justifyLeft');
+                log(`Command state: ${state}`);
+                
+                // Check document command state
+                const docState = document.queryCommandState('justifyLeft');
+                log(`Document command state: ${docState}`);
+            } catch (error) {
+                log(`✗ Error: ${error.message}`);
+            }
+        }
+        
+        function testAlignCenter() {
+            clearLog();
+            log('Testing Align Center...');
+            try {
+                editor.focus();
+                editor.execCommand('justifyCenter');
+                log('✓ Command executed successfully');
+                
+                const state = editor.queryCommandState('justifyCenter');
+                log(`Command state: ${state}`);
+                
+                const docState = document.queryCommandState('justifyCenter');
+                log(`Document command state: ${docState}`);
+            } catch (error) {
+                log(`✗ Error: ${error.message}`);
+            }
+        }
+        
+        function testAlignRight() {
+            clearLog();
+            log('Testing Align Right...');
+            try {
+                editor.focus();
+                editor.execCommand('justifyRight');
+                log('✓ Command executed successfully');
+                
+                const state = editor.queryCommandState('justifyRight');
+                log(`Command state: ${state}`);
+                
+                const docState = document.queryCommandState('justifyRight');
+                log(`Document command state: ${docState}`);
+            } catch (error) {
+                log(`✗ Error: ${error.message}`);
+            }
+        }
+        
+        function testAlignJustify() {
+            clearLog();
+            log('Testing Align Justify...');
+            try {
+                editor.focus();
+                editor.execCommand('justifyFull');
+                log('✓ Command executed successfully');
+                
+                const state = editor.queryCommandState('justifyFull');
+                log(`Command state: ${state}`);
+                
+                const docState = document.queryCommandState('justifyFull');
+                log(`Document command state: ${docState}`);
+            } catch (error) {
+                log(`✗ Error: ${error.message}`);
+            }
+        }
+        
+        function checkCommandStates() {
+            clearLog();
+            log('Checking all alignment command states...');
+            
+            const commands = ['justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'];
+            commands.forEach(cmd => {
+                const editorState = editor.queryCommandState(cmd);
+                const docState = document.queryCommandState(cmd);
+                const command = editor.commands.getCommand(cmd);
+                log(`${cmd}: editor=${editorState}, document=${docState}, registered=${!!command}`);
+            });
+        }
+        
+        function debugSelection() {
+            clearLog();
+            log('Debugging selection...');
+            
+            const selection = window.getSelection();
+            log(`Selection: ${selection.toString()}`);
+            log(`Anchor Node: ${selection.anchorNode}`);
+            log(`Focus Node: ${selection.focusNode}`);
+            log(`Range Count: ${selection.rangeCount}`);
+            
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                log(`Range: ${range.toString()}`);
+                log(`Start Container: ${range.startContainer.nodeName}`);
+                log(`End Container: ${range.endContainer.nodeName}`);
+            }
+            
+            // Check if editor is focused
+            log(`Editor has focus: ${document.activeElement === editor.contentElement}`);
+            log(`Content editable: ${editor.contentElement.contentEditable}`);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Demo - All Features</title>
+    <link rel="stylesheet" href="./dist/xeditor.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        h1 {
+            margin: 0;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            font-size: 24px;
+        }
+        .info {
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+        .info h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .feature {
+            padding: 8px 12px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .feature strong {
+            color: #333;
+        }
+        #editor {
+            height: 600px;
+            border: 1px solid #ddd;
+            margin: 20px;
+        }
+        .shortcuts {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #ddd;
+        }
+        .shortcuts h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        .shortcut-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 5px;
+            font-size: 13px;
+        }
+        .shortcut-list kbd {
+            background-color: #f0f0f0;
+            padding: 2px 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>xEditor Demo - 모든 기능 시연</h1>
+        
+        <div class="info">
+            <h2>구현된 주요 기능들</h2>
+            <div class="features">
+                <div class="feature"><strong>✅ 인라인 툴바:</strong> 텍스트 선택시 나타남</div>
+                <div class="feature"><strong>📁 파일 매니저:</strong> 파일 업로드/관리</div>
+                <div class="feature"><strong>😀 이모지 선택기:</strong> 다양한 이모지 삽입</div>
+                <div class="feature"><strong>Ω 특수문자:</strong> 특수문자 삽입</div>
+                <div class="feature"><strong>📊 문자수 제한:</strong> 실시간 카운터</div>
+                <div class="feature"><strong>🖨️ 인쇄 미리보기:</strong> 고급 인쇄 옵션</div>
+                <div class="feature"><strong>📝 폼 요소:</strong> 버튼, 입력필드 삽입</div>
+                <div class="feature"><strong>/ Quick Insert:</strong> 슬래시 명령</div>
+                <div class="feature"><strong>💾 자동 저장:</strong> 30초마다 자동 저장</div>
+                <div class="feature"><strong>📚 버전 관리:</strong> 변경 이력 추적</div>
+                <div class="feature"><strong>💬 댓글:</strong> 텍스트에 댓글 추가</div>
+                <div class="feature"><strong>📝 변경 추적:</strong> 수정 내역 표시</div>
+            </div>
+        </div>
+        
+        <div id="editor"></div>
+        
+        <div class="shortcuts">
+            <h3>키보드 단축키</h3>
+            <div class="shortcut-list">
+                <div><kbd>Ctrl+B</kbd> / <kbd>Cmd+B</kbd>: 굵게</div>
+                <div><kbd>Ctrl+I</kbd> / <kbd>Cmd+I</kbd>: 기울임</div>
+                <div><kbd>Ctrl+U</kbd> / <kbd>Cmd+U</kbd>: 밑줄</div>
+                <div><kbd>Ctrl+F</kbd> / <kbd>Cmd+F</kbd>: 찾기/바꾸기</div>
+                <div><kbd>Ctrl+S</kbd> / <kbd>Cmd+S</kbd>: 저장</div>
+                <div><kbd>Ctrl+Alt+M</kbd> / <kbd>Cmd+Alt+M</kbd>: 댓글 추가</div>
+                <div><kbd>Ctrl+Shift+E</kbd> / <kbd>Cmd+Shift+E</kbd>: 변경 추적</div>
+                <div><kbd>/</kbd>: Quick Insert 메뉴</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="./dist/xeditor.min.js"></script>
+    <script>
+        // 파일 매니저를 위한 가짜 백엔드
+        const mockFiles = [
+            { id: '1', name: 'image1.jpg', type: 'file', url: 'https://via.placeholder.com/300', mimeType: 'image/jpeg', size: 102400, thumbnail: 'https://via.placeholder.com/150' },
+            { id: '2', name: 'document.pdf', type: 'file', url: '#', mimeType: 'application/pdf', size: 204800 },
+            { id: '3', name: 'video.mp4', type: 'file', url: '#', mimeType: 'video/mp4', size: 5242880 },
+            { id: '4', name: 'Photos', type: 'folder', children: [] },
+            { id: '5', name: 'Documents', type: 'folder', children: [] }
+        ];
+        
+        // 에디터 초기화
+        const editor = new xeditor.XEditor({
+            container: '#editor',
+            content: `<h1>xEditor 데모 페이지에 오신 것을 환영합니다! 🎉</h1>
+                <p>이 에디터는 <strong>Froala Editor</strong>의 주요 기능들을 구현한 강력한 WYSIWYG 에디터입니다.</p>
+                
+                <h2>주요 기능 테스트</h2>
+                <p>아래의 다양한 기능들을 테스트해보세요:</p>
+                
+                <h3>1. 인라인 툴바</h3>
+                <p>이 텍스트를 선택하면 <mark>인라인 툴바</mark>가 나타납니다. 빠르게 서식을 적용할 수 있습니다.</p>
+                
+                <h3>2. Quick Insert 메뉴</h3>
+                <p>새 줄에서 <code>/</code>를 입력하면 Quick Insert 메뉴가 나타납니다.</p>
+                
+                <h3>3. 이모지와 특수문자</h3>
+                <p>툴바의 😀 버튼으로 이모지를, Ω 버튼으로 특수문자를 삽입할 수 있습니다.</p>
+                
+                <h3>4. 문자수 제한</h3>
+                <p>에디터 하단에 실시간으로 문자수가 표시됩니다. (최대 10,000자)</p>
+                
+                <h3>5. 협업 기능</h3>
+                <ul>
+                    <li>텍스트를 선택하고 <kbd>Ctrl+Alt+M</kbd>으로 댓글을 추가하세요</li>
+                    <li><kbd>Ctrl+Shift+E</kbd>로 변경사항 추적을 활성화하세요</li>
+                </ul>
+                
+                <blockquote>
+                    <p>"이 에디터는 현대적인 웹 애플리케이션에 필요한 모든 기능을 제공합니다."</p>
+                </blockquote>
+                
+                <p>즐거운 편집 되세요! ✨</p>`,
+            
+            // 플러그인 설정
+            inlineToolbar: {
+                enabled: true,
+                buttons: ['bold', 'italic', 'underline', 'textColor', 'link']
+            },
+            
+            charLimit: {
+                maxChars: 10000,
+                showCounter: true,
+                hardLimit: false,
+                warnThreshold: 0.9
+            },
+            
+            fileManager: {
+                getFiles: async (path) => {
+                    // 가짜 파일 목록 반환
+                    return mockFiles;
+                },
+                uploadFile: async (file, path) => {
+                    // 가짜 업로드
+                    return {
+                        id: Date.now().toString(),
+                        name: file.name,
+                        type: 'file',
+                        url: URL.createObjectURL(file),
+                        mimeType: file.type,
+                        size: file.size
+                    };
+                },
+                deleteFile: async (id) => {
+                    return true;
+                }
+            },
+            
+            quickInsert: {
+                trigger: '/',
+                maxItems: 10
+            },
+            
+            formElements: {
+                enabledElements: ['button', 'input', 'textarea', 'select', 'checkbox', 'radio'],
+                defaultStyles: true
+            },
+            
+            printPreview: {
+                pageSize: 'A4',
+                orientation: 'portrait',
+                showPageNumbers: true,
+                showHeaders: true,
+                headerText: 'xEditor Demo Document',
+                showTableOfContents: false,
+                zoom: 100
+            },
+            
+            autoSave: {
+                enabled: true,
+                interval: 30000,
+                showStatus: true,
+                showLastSaveTime: true
+            },
+            
+            versionHistory: {
+                enabled: true,
+                maxVersions: 50,
+                autoSaveVersions: true,
+                autoSaveInterval: 300000
+            },
+            
+            comments: {
+                enabled: true,
+                currentUser: {
+                    id: 'user1',
+                    name: '사용자',
+                    avatar: 'https://via.placeholder.com/32'
+                },
+                allowEdit: true,
+                allowDelete: true,
+                allowReply: true
+            },
+            
+            trackChanges: {
+                enabled: false,
+                currentUser: {
+                    id: 'user1',
+                    name: '사용자'
+                },
+                showPanel: true,
+                colors: ['#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec']
+            }
+        });
+        
+        // 에디터 인스턴스를 전역에 노출 (디버깅용)
+        window.editor = editor;
+        
+        console.log('xEditor가 성공적으로 초기화되었습니다!');
+        console.log('다음 명령으로 에디터를 제어할 수 있습니다:');
+        console.log('- editor.getContent(): 현재 내용 가져오기');
+        console.log('- editor.setContent(html): 내용 설정하기');
+        console.log('- editor.plugins: 로드된 플러그인 확인');
+    </script>
+</body>
+</html>

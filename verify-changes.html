@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor - Verify Icon and Alignment Changes</title>
+    <link rel="stylesheet" href="dist/xeditor.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        #editor {
+            margin-top: 20px;
+        }
+        .instructions {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        .instructions ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>xEditor - Verify Icon and Alignment Changes</h1>
+    
+    <div class="container">
+        <div class="instructions">
+            <h3>Changes Made:</h3>
+            <ul>
+                <li>✅ <strong>Text Color Icon:</strong> Updated to MS Word style with 'A' letters and red underline</li>
+                <li>✅ <strong>Background Color Icon:</strong> Updated to MS Word style with highlighter/paint bucket icon</li>
+                <li>✅ <strong>Alignment Buttons Fix:</strong> Added mousedown event handlers to prevent focus loss</li>
+            </ul>
+            
+            <h3>Test Instructions:</h3>
+            <ul>
+                <li>Type some text in the editor below</li>
+                <li>Select the text and click the text color icon (should show 'A' with red underline)</li>
+                <li>Click the background color icon (should show highlighter icon)</li>
+                <li>Select text and test alignment buttons (left, center, right, justify)</li>
+                <li>The alignment buttons should now work properly without losing selection</li>
+            </ul>
+        </div>
+        
+        <div id="editor"></div>
+    </div>
+    
+    <script src="dist/xeditor.min.js"></script>
+    <script>
+        // Initialize the editor
+        const editor = new XEditor({
+            container: '#editor',
+            height: '400px',
+            placeholder: 'Start typing to test the new icons and alignment functionality...',
+            onReady: () => {
+                console.log('Editor is ready!');
+                
+                // Add some sample content
+                editor.setContent(`
+                    <h2>Welcome to xEditor!</h2>
+                    <p>This is a sample paragraph. Select this text to test the new MS Word-style color icons in the toolbar.</p>
+                    <p style="text-align: left;">This paragraph is aligned to the left (default).</p>
+                    <p style="text-align: center;">This paragraph is centered. Test the alignment buttons!</p>
+                    <p style="text-align: right;">This paragraph is aligned to the right.</p>
+                    <p style="text-align: justify;">This is a longer paragraph that demonstrates justified text alignment. When text is justified, it is aligned evenly along both the left and right margins. This creates a clean, professional appearance that is commonly used in newspapers, magazines, and formal documents.</p>
+                `);
+            },
+            onChange: (content) => {
+                console.log('Content changed');
+            }
+        });
+        
+        // Make editor available globally for debugging
+        window.editor = editor;
+        
+        // Log when toolbar buttons are clicked
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.xeditor-toolbar__item')) {
+                console.log('Toolbar button clicked:', e.target);
+            }
+        });
+    </script>
+</body>
+</html>
