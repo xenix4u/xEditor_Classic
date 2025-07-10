@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Elements Test</title>
+    <link rel="stylesheet" href="xeditor.min.css">
+    <script src="xeditor.min.js"></script>
+</head>
+<body>
+    <h1>Form Elements Test</h1>
+    <div id="editor"></div>
+    <button onclick="testFormElements()">Test Form Elements Dialog</button>
+    <button onclick="testDirectInsertion()">Test Direct Insertion</button>
+    
+    <script>
+        let editor;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            editor = new xEditor({
+                container: '#editor',
+                height: 400,
+                placeholder: 'Test form elements here...'
+            });
+        });
+        
+        function testFormElements() {
+            console.log('Testing form elements...');
+            const formElementsPlugin = editor.plugins.get('form-elements');
+            console.log('FormElementsPlugin:', formElementsPlugin);
+            
+            if (formElementsPlugin && typeof formElementsPlugin.showFormElementsDialog === 'function') {
+                console.log('Showing form elements dialog...');
+                formElementsPlugin.showFormElementsDialog();
+            } else {
+                console.error('FormElementsPlugin not found or showFormElementsDialog method not available');
+            }
+        }
+        
+        function testDirectInsertion() {
+            console.log('Testing direct insertion...');
+            const html = '<button type="button" class="xeditor-btn xeditor-btn--primary">Test Button</button>';
+            editor.execCommand('insertHTML', html);
+        }
+    </script>
+</body>
+</html>

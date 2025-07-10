@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Indent Test - xEditor</title>
+    <link rel="stylesheet" href="dist/xeditor.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #editor {
+            border: 1px solid #ddd;
+            min-height: 300px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .console-output {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Indent/Outdent Test</h1>
+    
+    <div id="editor">
+        <p>Test paragraph 1</p>
+        <p>Test paragraph 2</p>
+    </div>
+
+    <button onclick="testIndent()">Test Indent Command</button>
+    <button onclick="testOutdent()">Test Outdent Command</button>
+    <button onclick="checkCommands()">Check Registered Commands</button>
+    <button onclick="clearConsole()">Clear Console</button>
+
+    <h3>Console Output:</h3>
+    <div class="console-output" id="console"></div>
+
+    <script src="dist/xeditor.js"></script>
+    <script>
+        const consoleEl = document.getElementById('console');
+        
+        // Override console.log
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            consoleEl.textContent += '[LOG] ' + args.join(' ') + '\n';
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            consoleEl.textContent += '[ERROR] ' + args.join(' ') + '\n';
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        };
+
+        // Initialize editor
+        console.log('Initializing xEditor...');
+        const editor = new xEditor('#editor', {
+            toolbar: {
+                items: ['bold', 'italic', '|', 'indent', 'outdent', '|', 'undo', 'redo']
+            }
+        });
+
+        editor.on('ready', () => {
+            console.log('Editor ready!');
+            checkCommands();
+        });
+
+        editor.on('commandExecuted', (cmd) => {
+            console.log('Command executed event:', cmd);
+        });
+
+        function testIndent() {
+            console.log('--- Testing indent command ---');
+            editor.execCommand('indent');
+        }
+
+        function testOutdent() {
+            console.log('--- Testing outdent command ---');
+            editor.execCommand('outdent');
+        }
+
+        function checkCommands() {
+            console.log('--- Checking registered commands ---');
+            const allCommands = editor.commands.getAllCommands();
+            console.log('All commands:', allCommands.join(', '));
+            
+            const hasIndent = allCommands.includes('indent');
+            const hasOutdent = allCommands.includes('outdent');
+            
+            console.log('Has indent command:', hasIndent);
+            console.log('Has outdent command:', hasOutdent);
+            
+            if (hasIndent) {
+                const indentCmd = editor.commands.getCommand('indent');
+                console.log('Indent command object:', indentCmd ? 'Found' : 'Not found');
+            }
+            
+            if (hasOutdent) {
+                const outdentCmd = editor.commands.getCommand('outdent');
+                console.log('Outdent command object:', outdentCmd ? 'Found' : 'Not found');
+            }
+        }
+
+        function clearConsole() {
+            consoleEl.textContent = '';
+        }
+    </script>
+</body>
+</html>

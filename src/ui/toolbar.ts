@@ -66,7 +66,7 @@ export class ToolbarImpl implements Toolbar {
     const itemsContainer = createElement('div', {
       className: 'xeditor-toolbar__items'
     });
-    itemsContainer.style.cssText = 'display: flex; align-items: center; flex: 1;';
+    itemsContainer.style.cssText = 'display: flex; align-items: center; flex-wrap: wrap; gap: 4px; flex: 1;';
 
     const items = this.config.items || [];
     
@@ -95,14 +95,6 @@ export class ToolbarImpl implements Toolbar {
     this.statusArea = createElement('div', {
       className: 'xeditor-toolbar__status'
     });
-    this.statusArea.style.cssText = `
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 10px;
-      font-size: 12px;
-      color: #666;
-    `;
 
     // Add items container and status area to toolbar
     this.element.appendChild(itemsContainer);
@@ -240,11 +232,7 @@ export class ToolbarImpl implements Toolbar {
       trigger.appendChild(text);
     }
 
-    const arrow = createElement('span', {
-      className: 'xeditor-toolbar__dropdown-arrow',
-      innerHTML: icons.dropdownArrow
-    });
-    trigger.appendChild(arrow);
+    // Dropdown arrow removed to prevent overlapping issues
 
     const menu = createElement('div', {
       className: 'xeditor-toolbar__dropdown-menu',
@@ -368,7 +356,7 @@ export class ToolbarImpl implements Toolbar {
       },
       heading: {
         name: 'heading',
-        icon: icons.heading,
+        text: 'H',
         tooltip: 'Heading',
         dropdown: [
           { text: 'Heading 1', value: 'h1' },
@@ -462,7 +450,7 @@ export class ToolbarImpl implements Toolbar {
       },
       textColor: {
         name: 'textColor',
-        icon: icons.textColor,
+        text: 'A',
         tooltip: 'Text Color',
         onClick: () => {
           const colorPlugin = this.editor.plugins.get('color');
@@ -473,7 +461,7 @@ export class ToolbarImpl implements Toolbar {
       },
       backgroundColor: {
         name: 'backgroundColor',
-        icon: icons.backgroundColor,
+        text: 'A',
         tooltip: 'Background Color',
         onClick: () => {
           const colorPlugin = this.editor.plugins.get('color');
@@ -617,12 +605,11 @@ export class ToolbarImpl implements Toolbar {
       },
       markdown: {
         name: 'markdown',
-        icon: icons.markdown || 'MD',
+        text: 'MD',
         tooltip: 'Markdown Import/Export',
         dropdown: [
           {
             text: 'Export as Markdown',
-            icon: '⬇',
             onClick: () => {
               const markdownPlugin = this.editor.plugins.get('markdown');
               if (markdownPlugin && typeof (markdownPlugin as any).showExportDialog === 'function') {
@@ -632,7 +619,6 @@ export class ToolbarImpl implements Toolbar {
           },
           {
             text: 'Import from Markdown',
-            icon: '⬆',
             onClick: () => {
               const markdownPlugin = this.editor.plugins.get('markdown');
               if (markdownPlugin && typeof (markdownPlugin as any).showImportDialog === 'function') {
@@ -683,6 +669,17 @@ export class ToolbarImpl implements Toolbar {
           const formElementsPlugin = this.editor.plugins.get('form-elements');
           if (formElementsPlugin && typeof (formElementsPlugin as any).showFormElementsDialog === 'function') {
             (formElementsPlugin as any).showFormElementsDialog();
+          }
+        }
+      },
+      settings: {
+        name: 'settings',
+        icon: '⚙️',
+        tooltip: 'Settings',
+        onClick: () => {
+          const settingsPlugin = this.editor.plugins.get('settings');
+          if (settingsPlugin && typeof (settingsPlugin as any).showSettingsDialog === 'function') {
+            (settingsPlugin as any).showSettingsDialog();
           }
         }
       }

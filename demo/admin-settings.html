@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Admin Settings</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .admin-section {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .setting-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .setting-card h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .setting-group {
+            margin-bottom: 15px;
+        }
+        
+        .setting-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .setting-group input,
+        .setting-group select,
+        .setting-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .setting-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .actions {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .status-message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .preview-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .preview-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .editor-preview {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 300px;
+            background: white;
+            overflow: hidden;
+        }
+        
+        .editor-preview .xeditor-toolbar {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: flex-start !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 8px !important;
+            gap: 4px !important;
+            box-sizing: border-box !important;
+        }
+        
+        .editor-preview .xeditor-toolbar__items {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            width: 100% !important;
+            gap: 4px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        .editor-preview .xeditor-toolbar__item,
+        .editor-preview .xeditor-toolbar__dropdown {
+            flex: 0 0 auto !important;
+            margin: 2px !important;
+            min-width: 32px !important;
+            height: 32px !important;
+        }
+        
+        .toolbar-item-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .toolbar-item-checkbox:hover {
+            background: #e9ecef;
+        }
+        
+        .toolbar-item-checkbox input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .toolbar-item-checkbox.checked {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ xEditor Admin Settings</h1>
+        
+        <div id="status-message" class="status-message"></div>
+        
+        <div class="admin-section">
+            <h2>Editor Configuration</h2>
+            
+            <div class="settings-grid">
+                <div class="setting-card">
+                    <h3>General Settings</h3>
+                    
+                    <div class="setting-group">
+                        <label>Default Theme</label>
+                        <select id="defaultTheme">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Default Language</label>
+                        <select id="defaultLanguage">
+                            <option value="en">English</option>
+                            <option value="ko">한국어</option>
+                            <option value="ja">日本語</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Default Height</label>
+                        <input type="text" id="defaultHeight" placeholder="400px" />
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableSanitization" checked />
+                            Enable HTML Sanitization
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-card">
+                    <h3>Toolbar Configuration</h3>
+                    
+                    <div class="setting-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableStickyToolbar" checked />
+                            Sticky Toolbar
+                        </label>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableMobileOptimization" checked />
+                            Mobile Optimization
+                        </label>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Toolbar Position</label>
+                        <select id="toolbarPosition">
+                            <option value="top">Top</option>
+                            <option value="bottom">Bottom</option>
+                            <option value="floating">Floating</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="setting-card" style="grid-column: 1 / -1;">
+                    <h3>🛠️ Toolbar Items Selection</h3>
+                    <p style="margin-bottom: 20px; color: #666;">Select which toolbar items to show in the editor:</p>
+                    
+                    <div id="toolbarItemsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                        <!-- Items will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="setting-group">
+                        <button type="button" onclick="selectAllItems()" class="btn btn-secondary" style="margin-right: 10px;">Select All</button>
+                        <button type="button" onclick="deselectAllItems()" class="btn btn-secondary" style="margin-right: 10px;">Deselect All</button>
+                        <button type="button" onclick="resetToDefaultItems()" class="btn btn-secondary">Reset to Default</button>
+                    </div>
+                </div>
+                
+                <div class="setting-card">
+                    <h3>Content Settings</h3>
+                    
+                    <div class="setting-group">
+                        <label>Default Font Size</label>
+                        <input type="number" id="defaultFontSize" value="16" min="12" max="24" />
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Default Font Family</label>
+                        <select id="defaultFontFamily">
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Helvetica">Helvetica</option>
+                            <option value="Georgia">Georgia</option>
+                        </select>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Default Line Height</label>
+                        <input type="number" id="defaultLineHeight" value="1.6" min="1" max="3" step="0.1" />
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableAutoSave" />
+                            Enable Auto Save
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-card">
+                    <h3>Image Settings</h3>
+                    
+                    <div class="setting-group">
+                        <label>Max Image Width</label>
+                        <input type="number" id="maxImageWidth" value="800" />
+                        <small style="color: #666; margin-top: 5px; display: block;">Height will be automatically adjusted to maintain aspect ratio</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Image Quality</label>
+                        <input type="range" id="imageQuality" min="0.1" max="1" step="0.1" value="0.8" />
+                        <small style="color: #666; margin-top: 5px; display: block;">0.1 = lowest quality, 1.0 = highest quality</small>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableImageResize" checked />
+                            Enable Image Resizing
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-card">
+                    <h3>Security Settings</h3>
+                    
+                    <div class="setting-group">
+                        <label>Allowed HTML Tags</label>
+                        <textarea id="allowedTags" rows="3" placeholder="p, div, span, strong, em, ul, ol, li"></textarea>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Blocked HTML Tags</label>
+                        <textarea id="blockedTags" rows="3" placeholder="script, iframe, object, embed"></textarea>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableXSSProtection" checked />
+                            Enable XSS Protection
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="setting-card">
+                    <h3>Performance Settings</h3>
+                    
+                    <div class="setting-group">
+                        <label>Max Content Length</label>
+                        <input type="number" id="maxContentLength" value="100000" />
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label>Auto Save Interval (ms)</label>
+                        <input type="number" id="autoSaveInterval" value="30000" />
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableLazyLoading" />
+                            Enable Lazy Loading
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                <button class="btn btn-secondary" onclick="loadSettings()">Reload Settings</button>
+                <button class="btn btn-secondary" onclick="resetSettings()">Reset to Default</button>
+                <button class="btn btn-danger" onclick="clearSettings()">Clear All Settings</button>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h3>Preview with Current Settings</h3>
+            <div id="editor-preview" class="editor-preview"></div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="xeditor.min.css">
+    <script src="xeditor.min.js"></script>
+    <script>
+        let previewEditor;
+        
+        // Available toolbar items with descriptions
+        const availableToolbarItems = [
+            { id: 'bold', name: 'Bold', icon: 'B', description: 'Bold text (Ctrl+B)' },
+            { id: 'italic', name: 'Italic', icon: 'I', description: 'Italic text (Ctrl+I)' },
+            { id: 'underline', name: 'Underline', icon: 'U', description: 'Underline text (Ctrl+U)' },
+            { id: 'strikethrough', name: 'Strikethrough', icon: 'S', description: 'Strikethrough text' },
+            { id: 'heading', name: 'Heading', icon: 'H', description: 'Heading dropdown' },
+            { id: 'paragraph', name: 'Paragraph', icon: '¶', description: 'Paragraph format' },
+            { id: 'blockquote', name: 'Blockquote', icon: '"', description: 'Blockquote format' },
+            { id: 'fontFamily', name: 'Font Family', icon: 'Font', description: 'Font family dropdown' },
+            { id: 'fontSize', name: 'Font Size', icon: '16px', description: 'Font size dropdown' },
+            { id: 'textColor', name: 'Text Color', icon: 'A', description: 'Text color picker' },
+            { id: 'backgroundColor', name: 'Background Color', icon: 'A', description: 'Background color picker' },
+            { id: 'alignLeft', name: 'Align Left', icon: '≡', description: 'Align text left' },
+            { id: 'alignCenter', name: 'Align Center', icon: '≡', description: 'Align text center' },
+            { id: 'alignRight', name: 'Align Right', icon: '≡', description: 'Align text right' },
+            { id: 'alignJustify', name: 'Justify', icon: '≡', description: 'Justify text' },
+            { id: 'orderedList', name: 'Ordered List', icon: '1.', description: 'Numbered list' },
+            { id: 'unorderedList', name: 'Unordered List', icon: '•', description: 'Bullet list' },
+            { id: 'checklist', name: 'Checklist', icon: '☑', description: 'Checklist' },
+            { id: 'indent', name: 'Indent', icon: '⇥', description: 'Increase indent' },
+            { id: 'outdent', name: 'Outdent', icon: '⇤', description: 'Decrease indent' },
+            { id: 'link', name: 'Link', icon: '🔗', description: 'Insert link' },
+            { id: 'image', name: 'Image', icon: '🖼️', description: 'Insert image' },
+            { id: 'video', name: 'Video', icon: '🎥', description: 'Insert video' },
+            { id: 'table', name: 'Table', icon: '⊞', description: 'Insert table' },
+            { id: 'code', name: 'Code Block', icon: '</>', description: 'Insert code block' },
+            { id: 'horizontalRule', name: 'Horizontal Rule', icon: '—', description: 'Insert horizontal line' },
+            { id: 'emoji', name: 'Emoji', icon: '😀', description: 'Insert emoji' },
+            { id: 'specialChars', name: 'Special Characters', icon: 'Ω', description: 'Insert special characters' },
+            { id: 'formElements', name: 'Form Elements', icon: '📝', description: 'Insert form elements' },
+            { id: 'findReplace', name: 'Find & Replace', icon: '🔍', description: 'Find and replace text' },
+            { id: 'undo', name: 'Undo', icon: '↶', description: 'Undo (Ctrl+Z)' },
+            { id: 'redo', name: 'Redo', icon: '↷', description: 'Redo (Ctrl+Y)' },
+            { id: 'markdown', name: 'Markdown', icon: 'MD', description: 'Markdown import/export' },
+            { id: 'statistics', name: 'Statistics', icon: '📊', description: 'Document statistics' },
+            { id: 'sourceCode', name: 'Source Code', icon: '📄', description: 'HTML source code' },
+            { id: 'fullscreen', name: 'Fullscreen', icon: '⛶', description: 'Toggle fullscreen' },
+            { id: 'print', name: 'Print', icon: '🖨️', description: 'Print document' }
+        ];
+
+        // Initialize preview editor
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeToolbarItemsGrid();
+            loadSettings();
+            initializePreviewEditor();
+        });
+        
+        function initializeToolbarItemsGrid() {
+            const grid = document.getElementById('toolbarItemsGrid');
+            grid.innerHTML = '';
+            
+            availableToolbarItems.forEach(item => {
+                const checkboxWrapper = document.createElement('div');
+                checkboxWrapper.className = 'toolbar-item-checkbox';
+                checkboxWrapper.title = item.description;
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `toolbar-item-${item.id}`;
+                checkbox.checked = true; // Default to checked
+                checkbox.addEventListener('change', function() {
+                    updateToolbarPreview();
+                    if (this.checked) {
+                        checkboxWrapper.classList.add('checked');
+                    } else {
+                        checkboxWrapper.classList.remove('checked');
+                    }
+                });
+                
+                const label = document.createElement('label');
+                label.htmlFor = `toolbar-item-${item.id}`;
+                label.innerHTML = `<span style="font-weight: bold; margin-right: 8px;">${item.icon}</span>${item.name}`;
+                
+                checkboxWrapper.appendChild(checkbox);
+                checkboxWrapper.appendChild(label);
+                grid.appendChild(checkboxWrapper);
+                
+                // Initialize visual state
+                if (checkbox.checked) {
+                    checkboxWrapper.classList.add('checked');
+                }
+            });
+        }
+        
+        function selectAllItems() {
+            availableToolbarItems.forEach(item => {
+                const checkbox = document.getElementById(`toolbar-item-${item.id}`);
+                const wrapper = checkbox.parentElement;
+                checkbox.checked = true;
+                wrapper.classList.add('checked');
+            });
+            updateToolbarPreview();
+        }
+        
+        function deselectAllItems() {
+            availableToolbarItems.forEach(item => {
+                const checkbox = document.getElementById(`toolbar-item-${item.id}`);
+                const wrapper = checkbox.parentElement;
+                checkbox.checked = false;
+                wrapper.classList.remove('checked');
+            });
+            updateToolbarPreview();
+        }
+        
+        function resetToDefaultItems() {
+            const defaultItems = [
+                'bold', 'italic', 'underline', 'strikethrough',
+                'fontFamily', 'fontSize', 'textColor', 'backgroundColor',
+                'alignLeft', 'alignCenter', 'alignRight', 'alignJustify',
+                'orderedList', 'unorderedList', 'checklist', 'indent', 'outdent',
+                'heading', 'paragraph', 'blockquote',
+                'link', 'image', 'video', 'table', 'code', 'horizontalRule',
+                'emoji', 'specialChars', 'formElements',
+                'findReplace', 'undo', 'redo',
+                'markdown', 'statistics', 'sourceCode', 'fullscreen', 'print'
+            ];
+            
+            availableToolbarItems.forEach(item => {
+                const checkbox = document.getElementById(`toolbar-item-${item.id}`);
+                const wrapper = checkbox.parentElement;
+                const shouldBeChecked = defaultItems.includes(item.id);
+                checkbox.checked = shouldBeChecked;
+                
+                if (shouldBeChecked) {
+                    wrapper.classList.add('checked');
+                } else {
+                    wrapper.classList.remove('checked');
+                }
+            });
+            updateToolbarPreview();
+        }
+        
+        function getSelectedToolbarItems() {
+            const selected = [];
+            availableToolbarItems.forEach(item => {
+                const checkbox = document.getElementById(`toolbar-item-${item.id}`);
+                if (checkbox.checked) {
+                    selected.push(item.id);
+                }
+            });
+            return selected;
+        }
+        
+        function updateToolbarPreview() {
+            if (previewEditor) {
+                const selectedItems = getSelectedToolbarItems();
+                // Add separators between logical groups
+                const itemsWithSeparators = [];
+                const groups = [
+                    ['bold', 'italic', 'underline', 'strikethrough'],
+                    ['fontFamily', 'fontSize'],
+                    ['textColor', 'backgroundColor'],
+                    ['alignLeft', 'alignCenter', 'alignRight', 'alignJustify'],
+                    ['orderedList', 'unorderedList', 'checklist', 'indent', 'outdent'],
+                    ['heading', 'paragraph', 'blockquote'],
+                    ['link', 'image', 'video', 'table', 'code', 'horizontalRule'],
+                    ['emoji', 'specialChars', 'formElements'],
+                    ['findReplace', 'undo', 'redo'],
+                    ['markdown', 'statistics', 'sourceCode', 'fullscreen', 'print']
+                ];
+                
+                groups.forEach((group, groupIndex) => {
+                    const groupItems = group.filter(item => selectedItems.includes(item));
+                    if (groupItems.length > 0) {
+                        itemsWithSeparators.push(...groupItems);
+                        if (groupIndex < groups.length - 1) {
+                            itemsWithSeparators.push('|');
+                        }
+                    }
+                });
+                
+                // Remove trailing separator
+                if (itemsWithSeparators[itemsWithSeparators.length - 1] === '|') {
+                    itemsWithSeparators.pop();
+                }
+                
+                // Reinitialize preview editor with new toolbar
+                previewEditor.destroy();
+                initializePreviewEditor(itemsWithSeparators);
+            }
+        }
+        
+        function initializePreviewEditor(customItems = null) {
+            const settings = getCurrentSettings();
+            const toolbarItems = customItems || getSelectedToolbarItems();
+            
+            previewEditor = new xEditor({
+                container: '#editor-preview',
+                height: settings.defaultHeight || 300,
+                theme: settings.defaultTheme || 'light',
+                language: settings.defaultLanguage || 'en',
+                sanitize: settings.enableSanitization !== false,
+                placeholder: 'Preview editor with current settings...',
+                toolbar: {
+                    items: toolbarItems,
+                    position: settings.toolbarPosition || 'top',
+                    sticky: settings.enableStickyToolbar !== false
+                },
+                image: {
+                    maxWidth: settings.maxImageWidth || 800,
+                    quality: settings.imageQuality || 0.8,
+                    enableResize: settings.enableImageResize !== false
+                },
+                autoSave: {
+                    enabled: settings.enableAutoSave || false,
+                    interval: settings.autoSaveInterval || 30000
+                }
+            });
+        }
+        
+        function getCurrentSettings() {
+            return {
+                defaultTheme: document.getElementById('defaultTheme').value,
+                defaultLanguage: document.getElementById('defaultLanguage').value,
+                defaultHeight: document.getElementById('defaultHeight').value,
+                enableSanitization: document.getElementById('enableSanitization').checked,
+                enableStickyToolbar: document.getElementById('enableStickyToolbar').checked,
+                enableMobileOptimization: document.getElementById('enableMobileOptimization').checked,
+                toolbarPosition: document.getElementById('toolbarPosition').value,
+                selectedToolbarItems: getSelectedToolbarItems(),
+                defaultFontSize: document.getElementById('defaultFontSize').value,
+                defaultFontFamily: document.getElementById('defaultFontFamily').value,
+                defaultLineHeight: document.getElementById('defaultLineHeight').value,
+                enableAutoSave: document.getElementById('enableAutoSave').checked,
+                maxImageWidth: document.getElementById('maxImageWidth').value,
+                imageQuality: document.getElementById('imageQuality').value,
+                enableImageResize: document.getElementById('enableImageResize').checked,
+                allowedTags: document.getElementById('allowedTags').value,
+                blockedTags: document.getElementById('blockedTags').value,
+                enableXSSProtection: document.getElementById('enableXSSProtection').checked,
+                maxContentLength: document.getElementById('maxContentLength').value,
+                autoSaveInterval: document.getElementById('autoSaveInterval').value,
+                enableLazyLoading: document.getElementById('enableLazyLoading').checked
+            };
+        }
+        
+        function saveSettings() {
+            const settings = getCurrentSettings();
+            
+            try {
+                localStorage.setItem('xeditor-admin-settings', JSON.stringify(settings));
+                showMessage('Settings saved successfully!', 'success');
+                
+                // Reinitialize preview editor
+                if (previewEditor) {
+                    previewEditor.destroy();
+                }
+                initializePreviewEditor();
+            } catch (error) {
+                showMessage('Failed to save settings: ' + error.message, 'error');
+            }
+        }
+        
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('xeditor-admin-settings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    applySettings(settings);
+                    showMessage('Settings loaded successfully!', 'success');
+                } else {
+                    showMessage('No saved settings found', 'error');
+                }
+            } catch (error) {
+                showMessage('Failed to load settings: ' + error.message, 'error');
+            }
+        }
+        
+        function applySettings(settings) {
+            document.getElementById('defaultTheme').value = settings.defaultTheme || 'light';
+            document.getElementById('defaultLanguage').value = settings.defaultLanguage || 'en';
+            document.getElementById('defaultHeight').value = settings.defaultHeight || '400px';
+            document.getElementById('enableSanitization').checked = settings.enableSanitization !== false;
+            document.getElementById('enableStickyToolbar').checked = settings.enableStickyToolbar !== false;
+            document.getElementById('enableMobileOptimization').checked = settings.enableMobileOptimization !== false;
+            document.getElementById('toolbarPosition').value = settings.toolbarPosition || 'top';
+            
+            // Apply selected toolbar items
+            const selectedItems = settings.selectedToolbarItems || [];
+            availableToolbarItems.forEach(item => {
+                const checkbox = document.getElementById(`toolbar-item-${item.id}`);
+                const wrapper = checkbox.parentElement;
+                const shouldBeChecked = selectedItems.includes(item.id);
+                checkbox.checked = shouldBeChecked;
+                
+                if (shouldBeChecked) {
+                    wrapper.classList.add('checked');
+                } else {
+                    wrapper.classList.remove('checked');
+                }
+            });
+            document.getElementById('defaultFontSize').value = settings.defaultFontSize || '16';
+            document.getElementById('defaultFontFamily').value = settings.defaultFontFamily || 'Arial';
+            document.getElementById('defaultLineHeight').value = settings.defaultLineHeight || '1.6';
+            document.getElementById('enableAutoSave').checked = settings.enableAutoSave || false;
+            document.getElementById('maxImageWidth').value = settings.maxImageWidth || '800';
+            document.getElementById('imageQuality').value = settings.imageQuality || '0.8';
+            document.getElementById('enableImageResize').checked = settings.enableImageResize !== false;
+            document.getElementById('allowedTags').value = settings.allowedTags || '';
+            document.getElementById('blockedTags').value = settings.blockedTags || '';
+            document.getElementById('enableXSSProtection').checked = settings.enableXSSProtection !== false;
+            document.getElementById('maxContentLength').value = settings.maxContentLength || '100000';
+            document.getElementById('autoSaveInterval').value = settings.autoSaveInterval || '30000';
+            document.getElementById('enableLazyLoading').checked = settings.enableLazyLoading || false;
+        }
+        
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all settings to default values?')) {
+                const defaultSettings = {
+                    defaultTheme: 'light',
+                    defaultLanguage: 'en',
+                    defaultHeight: '400px',
+                    enableSanitization: true,
+                    enableStickyToolbar: true,
+                    enableMobileOptimization: true,
+                    toolbarPosition: 'top',
+                    toolbarItems: '',
+                    defaultFontSize: '16',
+                    defaultFontFamily: 'Arial',
+                    defaultLineHeight: '1.6',
+                    enableAutoSave: false,
+                    maxImageWidth: '800',
+                    maxImageHeight: '600',
+                    imageQuality: '0.8',
+                    enableImageResize: true,
+                    allowedTags: '',
+                    blockedTags: '',
+                    enableXSSProtection: true,
+                    maxContentLength: '100000',
+                    autoSaveInterval: '30000',
+                    enableLazyLoading: false
+                };
+                
+                applySettings(defaultSettings);
+                showMessage('Settings reset to default values', 'success');
+            }
+        }
+        
+        function clearSettings() {
+            if (confirm('Are you sure you want to clear all saved settings? This action cannot be undone.')) {
+                localStorage.removeItem('xeditor-admin-settings');
+                showMessage('All settings cleared', 'success');
+            }
+        }
+        
+        function showMessage(message, type) {
+            const messageEl = document.getElementById('status-message');
+            messageEl.textContent = message;
+            messageEl.className = `status-message status-${type}`;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Export settings as JSON
+        function exportSettings() {
+            const settings = getCurrentSettings();
+            const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'xeditor-settings.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Import settings from JSON
+        function importSettings() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const settings = JSON.parse(e.target.result);
+                            applySettings(settings);
+                            showMessage('Settings imported successfully!', 'success');
+                        } catch (error) {
+                            showMessage('Failed to import settings: ' + error.message, 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+        
+        console.log('xEditor Admin Settings loaded!');
+        console.log('Available functions: saveSettings(), loadSettings(), resetSettings(), clearSettings(), exportSettings(), importSettings()');
+    </script>
+</body>
+</html>

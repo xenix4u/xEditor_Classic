@@ -5,7 +5,7 @@ export class CommandManagerImpl implements CommandManager {
 
   register(name: string, command: Command): void {
     if (this.commands.has(name)) {
-      console.warn(`Command "${name}" is already registered. Overwriting...`);
+      // Command already exists, overwriting
     }
     this.commands.set(name, command);
   }
@@ -14,23 +14,19 @@ export class CommandManagerImpl implements CommandManager {
     this.commands.delete(name);
   }
 
-  execute(name: string, value?: any): void {
+  execute(name: string, value?: unknown): void {
     const command = this.commands.get(name);
     if (!command) {
-      console.error(`Command "${name}" not found`);
+      // Command not found
       return;
     }
 
     if (command.canExecute && !command.canExecute()) {
-      console.warn(`Command "${name}" cannot be executed`);
+      // Command cannot be executed
       return;
     }
 
-    try {
-      command.execute(value);
-    } catch (error) {
-      console.error(`Error executing command "${name}":`, error);
-    }
+    command.execute(value);
   }
 
   canExecute(name: string): boolean {
@@ -47,7 +43,7 @@ export class CommandManagerImpl implements CommandManager {
     try {
       return command.queryState();
     } catch (error) {
-      console.error(`Error querying state for command "${name}":`, error);
+      // Error querying state
       return false;
     }
   }

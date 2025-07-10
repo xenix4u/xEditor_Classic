@@ -1,5 +1,5 @@
 /**
- * Accessibility utilities for XEditor
+ * Accessibility utilities for xEditor
  */
 
 import { Editor } from '../types';

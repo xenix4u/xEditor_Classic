@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XEditor Demo</title>
+    <title>xEditor Demo</title>
     <style>
         body {
             margin: 0;
@@ -72,7 +72,7 @@
             color: #555;
         }
         
-        /* 핵심 수정: 툴바 멀티라인 강제 적용 */
+        /* 핵심 수정: 툴바 멀티라인 자연스럽게 적용 */
         .xeditor-toolbar {
             display: flex !important;
             flex-wrap: wrap !important;
@@ -83,8 +83,8 @@
             min-height: auto !important;
             max-height: none !important;
             overflow: visible !important;
-            padding: 8px !important;
-            gap: 4px !important;
+            padding: 4px !important;
+            gap: 2px !important;
             box-sizing: border-box !important;
         }
         
@@ -130,14 +130,46 @@
             flex-basis: 100% !important;
             margin-left: auto !important;
         }
+        
+        /* 중요: toolbar__items 컨테이너도 wrap 설정 */
+        .xeditor-toolbar__items {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            width: 100% !important;
+            gap: 2px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        /* 툴바 아이템 간격 조정 */
+        .xeditor-toolbar__item {
+            margin: 1px !important;
+        }
+        
+        /* 구분선 간격 조정 */
+        .xeditor-toolbar__separator {
+            margin: 2px 4px !important;
+        }
     </style>
-    <!-- Load XEditor CSS and JS -->
-    <link rel="stylesheet" href="../dist/xeditor.min.css">
-    <script src="../dist/xeditor.min.js"></script>
+    <!-- Load xEditor CSS and JS -->
+    <!-- In development mode, webpack serves files from memory -->
+    <!-- CSS is included in the JS bundle in dev mode -->
+    <link rel="stylesheet" href="xeditor.min.css">
+    <script src="xeditor.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>XEditor Demo</h1>
+        <h1>xEditor Demo</h1>
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <a href="admin-settings.html" style="display: inline-block; padding: 12px 24px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">
+                ⚙️ Admin Settings
+            </a>
+            <span style="margin: 0 10px;">|</span>
+            <a href="settings-test.html" style="display: inline-block; padding: 12px 24px; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">
+                🧪 Settings Test
+            </a>
+        </div>
         
         <div class="demo-section">
             <h2>Basic Editor</h2>
@@ -149,6 +181,9 @@
                 <button onclick="clearContent()">Clear</button>
                 <button onclick="toggleTheme()">Toggle Theme</button>
                 <button onclick="focusEditor()">Focus</button>
+                <button onclick="testFormElements()">Test Form Elements</button>
+                <button onclick="testIndent()">Test Indent</button>
+                <button onclick="testOutdent()">Test Outdent</button>
             </div>
             
             <div id="output" class="output" style="display: none;"></div>
@@ -170,7 +205,7 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             // Basic editor with all features
-            editor1 = new xeditor.XEditor({
+            editor1 = new xEditor({
                 container: '#editor1',
                 height: 400,
                 placeholder: 'Start typing here...',
@@ -179,36 +214,27 @@
                 },
                 onReady: function() {
                     console.log('Editor 1 ready!');
-                    // 툴바 멀티라인 강제 적용
+                    // 툴바 자연스러운 줄바꿈 설정
                     setTimeout(function() {
                         try {
-                            // 툴바 요소 찾기
-                            const toolbarElement = document.querySelector('#editor1 .xeditor-toolbar');
-                            if (toolbarElement) {
-                                const items = Array.from(toolbarElement.children);
-                                let count = 0;
+                            const itemsContainer = document.querySelector('#editor1 .xeditor-toolbar__items');
+                            if (itemsContainer) {
+                                const items = Array.from(itemsContainer.children);
+                                console.log('Toolbar items configured for natural wrapping - total items:', items.length);
                                 
-                                // 15개 아이템마다 줄바꿈 추가
-                                items.forEach((item, index) => {
-                                    if (!item.classList.contains('xeditor-toolbar__separator')) {
-                                        count++;
-                                        if (count > 0 && count % 15 === 0) {
-                                            const lineBreak = document.createElement('div');
-                                            lineBreak.style.cssText = 'flex-basis: 100%; height: 0; width: 100%;';
-                                            item.insertAdjacentElement('afterend', lineBreak);
-                                        }
-                                    }
-                                });
+                                // 컨테이너 너비 확인
+                                const containerWidth = itemsContainer.offsetWidth;
+                                console.log('Toolbar container width:', containerWidth);
                             }
                         } catch (error) {
-                            console.log('Toolbar multiline setup skipped:', error);
+                            console.log('Toolbar setup error:', error);
                         }
-                    }, 100);
+                    }, 500);
                 }
             });
             
             // Custom toolbar editor
-            editor2 = new xeditor.XEditor({
+            editor2 = new xEditor({
                 container: '#editor2',
                 height: 300,
                 toolbar: {
@@ -222,7 +248,7 @@
             });
             
             // Minimal editor
-            editor3 = new xeditor.XEditor({
+            editor3 = new xEditor({
                 container: '#editor3',
                 height: 200,
                 toolbar: false,
@@ -239,7 +265,7 @@
         
         function setContent() {
             const sampleContent = `
-                <h1>Welcome to XEditor!</h1>
+                <h1>Welcome to xEditor!</h1>
                 <p>This is a <strong>powerful</strong> and <em>flexible</em> WYSIWYG editor.</p>
                 <h2>Features</h2>
                 <ul>
@@ -271,6 +297,25 @@
         
         function focusEditor() {
             editor1.focus();
+        }
+        
+        function testFormElements() {
+            const formElementsPlugin = editor1.plugins.get('form-elements');
+            if (formElementsPlugin && typeof formElementsPlugin.showFormElementsDialog === 'function') {
+                formElementsPlugin.showFormElementsDialog();
+            } else {
+                console.error('FormElementsPlugin not found or showFormElementsDialog method not available');
+            }
+        }
+        
+        function testIndent() {
+            console.log('Testing indent command...');
+            editor1.execCommand('indent');
+        }
+        
+        function testOutdent() {
+            console.log('Testing outdent command...');
+            editor1.execCommand('outdent');
         }
     </script>
 </body>

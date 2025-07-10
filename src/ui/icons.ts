@@ -60,16 +60,18 @@ export const icons = {
     <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
   </svg>`,
   
-  dropdownArrow: `<svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor">
-    <path d="M0 2l4 4 4-4z"/>
+  dropdownArrow: `<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+    <path d="M2 4l4 4 4-4z"/>
   </svg>`,
   
   indent: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-    <path fill-rule="evenodd" d="M3 8a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6A.5.5 0 0 1 3 8zm0-3a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10A.5.5 0 0 1 3 5zm0 6a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5zm5-9a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 12a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM3.854 6.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0z"/>
+    <path d="M2.5 3h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1 0-1zm5 3h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1zm0 3h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1zm0 3h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1z"/>
+    <path d="M2.5 8l3-3v6l-3-3z"/>
   </svg>`,
   
   outdent: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-    <path fill-rule="evenodd" d="M3 8a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6A.5.5 0 0 1 3 8zm0-3a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10A.5.5 0 0 1 3 5zm0 6a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1h-10a.5.5 0 0 1-.5-.5zm5-9a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 12a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM1.854 7.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708-.708L.793 7.5l-.647-.646a.5.5 0 1 1 .708-.708l1.5 1.5z"/>
+    <path d="M2.5 3h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1 0-1zm0 3h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1zm0 3h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1zm0 3h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1 0-1z"/>
+    <path d="M5.5 8l-3-3v6l3-3z"/>
   </svg>`,
   
   alignLeft: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">

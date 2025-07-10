@@ -1,13 +1,13 @@
 /**
  * Debounce function to limit the rate of function calls
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
   
-  return function(this: any, ...args: Parameters<T>) {
+  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
     const context = this;
     
     if (timeout) clearTimeout(timeout);
@@ -21,13 +21,13 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttle function to limit function calls to at most once per interval
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean = false;
   
-  return function(this: any, ...args: Parameters<T>) {
+  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
     const context = this;
     
     if (!inThrottle) {
@@ -49,7 +49,7 @@ export function requestIdleCallback(
   options?: { timeout?: number }
 ): void {
   if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(callback, options);
+    (window as Window & { requestIdleCallback: (callback: () => void, options?: { timeout?: number }) => void }).requestIdleCallback(callback, options);
   } else {
     // Fallback for browsers that don't support requestIdleCallback
     setTimeout(callback, 0);
@@ -62,16 +62,16 @@ export function requestIdleCallback(
 export class VirtualScroller {
   private container: HTMLElement;
   private itemHeight: number;
-  private items: any[];
+  private items: unknown[];
   private visibleItems: number;
   private scrollTop: number = 0;
-  private renderCallback: (item: any, index: number) => HTMLElement;
+  private renderCallback: (item: unknown, index: number) => HTMLElement;
 
   constructor(
     container: HTMLElement,
-    items: any[],
+    items: unknown[],
     itemHeight: number,
-    renderCallback: (item: any, index: number) => HTMLElement
+    renderCallback: (item: unknown, index: number) => HTMLElement
   ) {
     this.container = container;
     this.items = items;
@@ -127,7 +127,7 @@ export class VirtualScroller {
     }
   }
 
-  updateItems(items: any[]): void {
+  updateItems(items: unknown[]): void {
     this.items = items;
     const totalHeight = this.items.length * this.itemHeight;
     const spacer = this.container.firstElementChild as HTMLElement;

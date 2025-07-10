@@ -26,3 +26,6 @@ export { AutoSavePlugin } from './autosave';
 export { VersionHistoryPlugin } from './version-history';
 export { CommentsPlugin } from './comments';
 export { TrackChangesPlugin } from './track-changes';
+export { MobileOptimizationPlugin } from './mobile-optimization';
+export { SettingsPlugin } from './settings';
+export { IconsPlugin } from './icons';

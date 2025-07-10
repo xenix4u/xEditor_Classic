@@ -22,7 +22,7 @@ export class ErrorHandler {
       details: error
     };
 
-    console.error('XEditor Error:', editorError);
+    console.error('xEditor Error:', editorError);
     
     // Notify error listeners
     this.errorListeners.forEach(listener => {

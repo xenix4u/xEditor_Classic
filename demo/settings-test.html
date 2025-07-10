@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Settings Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .demo-controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .demo-controls button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .demo-controls button:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .editor-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 400px;
+            background-color: white;
+        }
+        
+        .settings-info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .settings-info h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        
+        .settings-info ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .settings-info li {
+            margin-bottom: 5px;
+        }
+        
+        .current-settings {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .current-settings h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .current-settings pre {
+            background: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+    </style>
+    <!-- Load xEditor CSS and JS -->
+    <script src="/xeditor.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ xEditor Settings System</h1>
+        
+        <div class="settings-info">
+            <h3>Settings Features</h3>
+            <ul>
+                <li>🖼️ <strong>Image Settings:</strong> Max width/height, quality, resize, caption</li>
+                <li>🔧 <strong>Toolbar Settings:</strong> Show/hide items, mobile optimization</li>
+                <li>📝 <strong>Editor Settings:</strong> Theme, fonts, line height, auto-save</li>
+                <li>📱 <strong>Mobile Settings:</strong> Touch gestures, mobile toolbar, touch targets</li>
+                <li>⚡ <strong>Advanced Settings:</strong> Custom CSS, debug mode, analytics</li>
+                <li>💾 <strong>Persistence:</strong> Settings saved to localStorage</li>
+                <li>📤 <strong>Export/Import:</strong> Save/load settings as JSON</li>
+            </ul>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Settings Test Editor</h2>
+            <div class="demo-controls">
+                <button onclick="openSettings()">⚙️ Open Settings</button>
+                <button onclick="getSettings()">📋 Get Current Settings</button>
+                <button onclick="resetSettings()">🔄 Reset to Default</button>
+                <button onclick="applyTestSettings()">🧪 Apply Test Settings</button>
+                <button onclick="toggleTheme()">🌓 Toggle Theme</button>
+            </div>
+            <div id="settings-editor" class="editor-container"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Settings Test Instructions</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div>
+                    <h4>📷 Image Settings Test</h4>
+                    <ol>
+                        <li>Open Settings → Image tab</li>
+                        <li>Change max width to 800px</li>
+                        <li>Set quality to 0.7</li>
+                        <li>Insert an image to test</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4>🔧 Toolbar Settings Test</h4>
+                    <ol>
+                        <li>Open Settings → Toolbar tab</li>
+                        <li>Uncheck some toolbar items</li>
+                        <li>Save settings</li>
+                        <li>Check toolbar updates</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4>📝 Editor Settings Test</h4>
+                    <ol>
+                        <li>Open Settings → Editor tab</li>
+                        <li>Change font size to 16px</li>
+                        <li>Set line height to 1.8</li>
+                        <li>Switch to dark theme</li>
+                    </ol>
+                </div>
+                <div>
+                    <h4>📱 Mobile Settings Test</h4>
+                    <ol>
+                        <li>Open Settings → Mobile tab</li>
+                        <li>Enable/disable touch gestures</li>
+                        <li>Change touch target size</li>
+                        <li>Test on mobile device</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        
+        <div class="current-settings">
+            <h3>Current Settings</h3>
+            <pre id="settings-display">Loading...</pre>
+        </div>
+    </div>
+
+    <script>
+        let editor;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize editor with settings
+            editor = new xEditor({
+                container: '#settings-editor',
+                height: 400,
+                placeholder: 'Test the settings system! Click the ⚙️ button in the toolbar to open settings.',
+                
+                // Sample content
+                content: `
+                    <h1>Settings Test Document</h1>
+                    <p>This document is for testing the xEditor settings system.</p>
+                    
+                    <h2>Test Different Settings:</h2>
+                    <ul>
+                        <li>Change image max width and insert an image</li>
+                        <li>Modify toolbar items visibility</li>
+                        <li>Adjust editor theme and font settings</li>
+                        <li>Test mobile optimizations</li>
+                    </ul>
+                    
+                    <p>Use the <strong>Settings button (⚙️)</strong> in the toolbar to access all configuration options.</p>
+                    
+                    <blockquote>
+                        <p>Settings are automatically saved to localStorage and will persist between sessions.</p>
+                    </blockquote>
+                `,
+                
+                // Enable all plugins for testing
+                plugins: [
+                    'settings',
+                    'image',
+                    'link',
+                    'lists',
+                    'color',
+                    'font',
+                    'table',
+                    'source',
+                    'fullscreen',
+                    'mobile-optimization'
+                ],
+                
+                onChange: function(content) {
+                    console.log('Content changed:', content.length + ' characters');
+                },
+                
+                onReady: function() {
+                    console.log('Settings editor ready!');
+                    displayCurrentSettings();
+                }
+            });
+            
+            // Update settings display every 2 seconds
+            setInterval(displayCurrentSettings, 2000);
+        });
+        
+        function openSettings() {
+            editor.execCommand('settings');
+        }
+        
+        function getSettings() {
+            const settingsPlugin = editor.plugins.get('settings');
+            if (settingsPlugin) {
+                const settings = settingsPlugin.getSettings();
+                console.log('Current settings:', settings);
+                alert('Settings logged to console. Check browser developer tools.');
+            }
+        }
+        
+        function resetSettings() {
+            const settingsPlugin = editor.plugins.get('settings');
+            if (settingsPlugin) {
+                settingsPlugin.updateSettings({});
+                displayCurrentSettings();
+                alert('Settings reset to default values');
+            }
+        }
+        
+        function applyTestSettings() {
+            const settingsPlugin = editor.plugins.get('settings');
+            if (settingsPlugin) {
+                settingsPlugin.updateSettings({
+                    image: {
+                        maxWidth: 600,
+                        quality: 0.8,
+                        enableResize: true,
+                        enableCaption: true
+                    },
+                    editor: {
+                        theme: 'dark',
+                        fontSize: 16,
+                        lineHeight: 1.6,
+                        fontFamily: 'Georgia, serif'
+                    },
+                    toolbar: {
+                        enableSticky: true,
+                        enableMobileOptimization: true
+                    },
+                    mobile: {
+                        enableTouchGestures: true,
+                        touchTargetSize: 48
+                    }
+                });
+                displayCurrentSettings();
+                alert('Test settings applied!');
+            }
+        }
+        
+        function toggleTheme() {
+            const settingsPlugin = editor.plugins.get('settings');
+            if (settingsPlugin) {
+                const currentSettings = settingsPlugin.getSettings();
+                const newTheme = currentSettings.editor.theme === 'light' ? 'dark' : 'light';
+                settingsPlugin.updateSettings({
+                    editor: {
+                        ...currentSettings.editor,
+                        theme: newTheme
+                    }
+                });
+                displayCurrentSettings();
+            }
+        }
+        
+        function displayCurrentSettings() {
+            const settingsPlugin = editor.plugins.get('settings');
+            if (settingsPlugin) {
+                const settings = settingsPlugin.getSettings();
+                const display = document.getElementById('settings-display');
+                display.textContent = JSON.stringify(settings, null, 2);
+            }
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case ',':
+                        e.preventDefault();
+                        openSettings();
+                        break;
+                    case 'r':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            resetSettings();
+                        }
+                        break;
+                }
+            }
+        });
+        
+        // Demo some settings changes
+        function demoImageSettings() {
+            const settingsPlugin = editor.plugins.get('settings');
+            if (settingsPlugin) {
+                settingsPlugin.updateSettings({
+                    image: {
+                        maxWidth: 800,
+                        maxHeight: 600,
+                        quality: 0.9,
+                        enableResize: true,
+                        enableCaption: true
+                    }
+                });
+            }
+        }
+        
+        function demoToolbarSettings() {
+            const settingsPlugin = editor.plugins.get('settings');
+            if (settingsPlugin) {
+                settingsPlugin.updateSettings({
+                    toolbar: {
+                        visibleItems: ['bold', 'italic', 'underline', 'link', 'image', 'undo', 'redo'],
+                        enableSticky: false,
+                        enableMobileOptimization: true
+                    }
+                });
+            }
+        }
+        
+        // Add some helpful console commands
+        window.xEditorSettings = {
+            getSettings: getSettings,
+            resetSettings: resetSettings,
+            applyTestSettings: applyTestSettings,
+            demoImageSettings: demoImageSettings,
+            demoToolbarSettings: demoToolbarSettings
+        };
+        
+        console.log('xEditor Settings Test loaded!');
+        console.log('Available commands: xEditorSettings.getSettings(), xEditorSettings.resetSettings(), etc.');
+    </script>
+</body>
+</html>

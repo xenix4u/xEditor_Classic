@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Indent/Outdent - xEditor</title>
+    <link rel="stylesheet" href="dist/xeditor.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #editor {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 400px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        .debug-output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>xEditor - Test Indent/Outdent Functionality</h1>
+    
+    <div class="test-section">
+        <h2>Instructions:</h2>
+        <ol>
+            <li>Type some text in the editor</li>
+            <li>Select the text or place cursor in a paragraph</li>
+            <li>Click the Indent button (→) to indent the text</li>
+            <li>Click the Outdent button (←) to outdent the text</li>
+            <li>Try with lists as well</li>
+        </ol>
+    </div>
+
+    <div id="editor">
+        <h2>Test Content</h2>
+        <p>This is a normal paragraph. Try indenting and outdenting this text.</p>
+        <p>This is another paragraph for testing.</p>
+        <ul>
+            <li>First list item</li>
+            <li>Second list item
+                <ul>
+                    <li>Nested item 1</li>
+                    <li>Nested item 2</li>
+                </ul>
+            </li>
+            <li>Third list item</li>
+        </ul>
+        <p>More text after the list.</p>
+    </div>
+
+    <div class="debug-output" id="debug">Debug console...</div>
+
+    <script src="dist/xeditor.js"></script>
+    <script>
+        // Initialize debug console
+        const debugEl = document.getElementById('debug');
+        const log = (...args) => {
+            const msg = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg
+            ).join(' ');
+            debugEl.textContent += msg + '\n';
+            debugEl.scrollTop = debugEl.scrollHeight;
+        };
+
+        // Initialize xEditor
+        const editor = new xEditor('#editor', {
+            toolbar: {
+                items: [
+                    'bold', 'italic', '|',
+                    'orderedList', 'unorderedList', '|',
+                    'indent', 'outdent', '|',
+                    'undo', 'redo'
+                ]
+            },
+            debug: true
+        });
+
+        // Log when editor is ready
+        editor.on('ready', () => {
+            log('Editor initialized');
+            
+            // Check if indent/outdent commands are registered
+            const commands = editor.commands.getAllCommands();
+            log('Registered commands:', commands);
+            
+            // Check if indent command exists
+            const indentCmd = editor.commands.getCommand('indent');
+            const outdentCmd = editor.commands.getCommand('outdent');
+            
+            log('Indent command:', indentCmd ? 'Registered' : 'NOT FOUND');
+            log('Outdent command:', outdentCmd ? 'Registered' : 'NOT FOUND');
+        });
+
+        // Log command executions
+        editor.on('commandExecuted', (command) => {
+            log(`Command executed: ${command}`);
+        });
+
+        // Add manual test buttons
+        const testSection = document.querySelector('.test-section');
+        const btnContainer = document.createElement('div');
+        btnContainer.style.marginTop = '10px';
+        
+        const indentBtn = document.createElement('button');
+        indentBtn.textContent = 'Test Indent (Manual)';
+        indentBtn.onclick = () => {
+            log('Manual indent button clicked');
+            editor.execCommand('indent');
+        };
+        
+        const outdentBtn = document.createElement('button');
+        outdentBtn.textContent = 'Test Outdent (Manual)';
+        outdentBtn.style.marginLeft = '10px';
+        outdentBtn.onclick = () => {
+            log('Manual outdent button clicked');
+            editor.execCommand('outdent');
+        };
+        
+        btnContainer.appendChild(indentBtn);
+        btnContainer.appendChild(outdentBtn);
+        testSection.appendChild(btnContainer);
+
+        // Override console.log to capture plugin logs
+        const originalLog = console.log;
+        console.log = (...args) => {
+            originalLog(...args);
+            log('Console:', ...args);
+        };
+    </script>
+</body>
+</html>

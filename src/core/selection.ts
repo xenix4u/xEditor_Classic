@@ -119,8 +119,8 @@ export class SelectionManager implements Selection {
       }
     );
     
-    let node;
-    while (node = walker.nextNode()) {
+    let node: Node | null;
+    while ((node = walker.nextNode()) !== null) {
       nodes.push(node);
     }
     

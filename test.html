@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XEditor Test</title>
+    <title>xEditor Test</title>
     <link rel="stylesheet" href="dist/xeditor.min.css">
     <script src="dist/xeditor.min.js"></script>
 </head>
 <body>
-    <h1>XEditor Test Page</h1>
+    <h1>xEditor Test Page</h1>
     <div id="editor"></div>
     
     <script>
-        console.log('XEditor available:', typeof XEditor);
+        console.log('xEditor available:', typeof xEditor);
         
-        if (typeof XEditor \!== 'undefined') {
+        if (typeof xEditor \!== 'undefined') {
             try {
-                const editor = new XEditor({
+                const editor = new xEditor({
                     container: '#editor',
                     height: 400,
                     placeholder: 'Start typing...'
@@ -26,7 +26,7 @@
                 console.error('Error initializing editor:', error);
             }
         } else {
-            console.error('XEditor is not defined\!');
+            console.error('xEditor is not defined\!');
         }
     </script>
 </body>

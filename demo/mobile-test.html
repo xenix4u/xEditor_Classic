@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>xEditor Mobile Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .demo-section {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .demo-controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .demo-controls button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        .demo-controls button:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .editor-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 300px;
+            background-color: white;
+        }
+        
+        .mobile-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .mobile-info h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        
+        .mobile-info ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .mobile-info li {
+            margin-bottom: 5px;
+        }
+        
+        /* Force mobile styles for testing */
+        @media (max-width: 768px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .demo-section {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+    <!-- Load xEditor CSS and JS -->
+    <script src="/xeditor.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 xEditor Mobile Test</h1>
+        
+        <div class="mobile-info">
+            <h3>Mobile Features Test</h3>
+            <ul>
+                <li>✅ Responsive toolbar that wraps on narrow screens</li>
+                <li>✅ Touch selection with mobile toolbar popup</li>
+                <li>✅ Swipe gestures: Right = Undo, Left = Redo</li>
+                <li>✅ Touch drag & drop for images and elements</li>
+                <li>✅ Virtual keyboard optimization</li>
+                <li>✅ Larger touch targets for mobile</li>
+            </ul>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Mobile-Optimized Editor</h2>
+            <div class="demo-controls">
+                <button onclick="getContent()">Get Content</button>
+                <button onclick="setContent()">Set Sample Content</button>
+                <button onclick="clearContent()">Clear</button>
+                <button onclick="toggleTheme()">Toggle Theme</button>
+                <button onclick="testMobileFeatures()">Test Mobile Features</button>
+            </div>
+            <div id="mobile-editor" class="editor-container"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Touch Test Instructions</h2>
+            <p><strong>On mobile devices, try these gestures:</strong></p>
+            <ul>
+                <li><strong>Text Selection:</strong> Long press and drag to select text</li>
+                <li><strong>Mobile Toolbar:</strong> Select text to see floating toolbar</li>
+                <li><strong>Swipe to Undo:</strong> Swipe right in editor area</li>
+                <li><strong>Swipe to Redo:</strong> Swipe left in editor area</li>
+                <li><strong>Drag & Drop:</strong> Long press images to drag them</li>
+                <li><strong>Virtual Keyboard:</strong> Tap to focus, keyboard should adjust layout</li>
+            </ul>
+        </div>
+        
+        <div class="demo-section">
+            <h2>Device Detection</h2>
+            <div id="device-info">
+                <p><strong>User Agent:</strong> <span id="user-agent"></span></p>
+                <p><strong>Touch Support:</strong> <span id="touch-support"></span></p>
+                <p><strong>Screen Size:</strong> <span id="screen-size"></span></p>
+                <p><strong>Viewport:</strong> <span id="viewport-size"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editor;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize editor with mobile optimization
+            editor = new xEditor({
+                container: '#mobile-editor',
+                height: 300,
+                placeholder: 'Start typing on mobile... Try selecting text to see the mobile toolbar!',
+                theme: 'light',
+                
+                // Enable mobile-specific features
+                plugins: [
+                    'mobile-optimization',
+                    'image',
+                    'link',
+                    'lists',
+                    'color',
+                    'font',
+                    'source',
+                    'fullscreen'
+                ],
+                
+                // Mobile-optimized toolbar
+                toolbar: {
+                    items: [
+                        'bold', 'italic', 'underline', '|',
+                        'heading', 'paragraph', '|',
+                        'orderedList', 'unorderedList', '|',
+                        'link', 'image', '|',
+                        'textColor', 'backgroundColor', '|',
+                        'undo', 'redo', '|',
+                        'fullscreen', 'source'
+                    ],
+                    sticky: false  // Disable sticky on mobile for better UX
+                },
+                
+                onChange: function(content) {
+                    console.log('Content changed:', content.length + ' characters');
+                },
+                
+                onReady: function() {
+                    console.log('Mobile editor ready!');
+                    detectMobileFeatures();
+                }
+            });
+            
+            // Update device info
+            updateDeviceInfo();
+            
+            // Update viewport size on resize
+            window.addEventListener('resize', updateViewportSize);
+        });
+        
+        function updateDeviceInfo() {
+            document.getElementById('user-agent').textContent = navigator.userAgent;
+            document.getElementById('touch-support').textContent = 'ontouchstart' in window ? 'Yes' : 'No';
+            document.getElementById('screen-size').textContent = `${screen.width} × ${screen.height}`;
+            updateViewportSize();
+        }
+        
+        function updateViewportSize() {
+            document.getElementById('viewport-size').textContent = `${window.innerWidth} × ${window.innerHeight}`;
+        }
+        
+        function detectMobileFeatures() {
+            const features = [];
+            
+            if ('ontouchstart' in window) {
+                features.push('Touch Events');
+            }
+            
+            if ('orientation' in window) {
+                features.push('Orientation');
+            }
+            
+            if ('vibrate' in navigator) {
+                features.push('Vibration');
+            }
+            
+            if ('geolocation' in navigator) {
+                features.push('Geolocation');
+            }
+            
+            if ('serviceWorker' in navigator) {
+                features.push('Service Worker');
+            }
+            
+            console.log('Mobile features detected:', features);
+        }
+        
+        function getContent() {
+            const content = editor.getContent();
+            alert('Content length: ' + content.length + ' characters');
+            console.log('Content:', content);
+        }
+        
+        function setContent() {
+            const sampleContent = `
+                <h1>📱 Mobile Editor Test</h1>
+                <p>This is a <strong>mobile-optimized</strong> editor with touch support!</p>
+                
+                <h2>Features to Test:</h2>
+                <ul>
+                    <li>Touch selection with floating toolbar</li>
+                    <li>Swipe gestures for undo/redo</li>
+                    <li>Responsive toolbar layout</li>
+                    <li>Virtual keyboard optimization</li>
+                </ul>
+                
+                <p>Try <em>selecting this text</em> to see the mobile toolbar appear!</p>
+                
+                <blockquote>
+                    <p>On mobile devices, the interface adapts automatically for better usability.</p>
+                </blockquote>
+                
+                <p>You can also test image drag & drop by inserting an image and moving it around.</p>
+            `;
+            editor.setContent(sampleContent);
+        }
+        
+        function clearContent() {
+            editor.setContent('');
+        }
+        
+        function toggleTheme() {
+            const currentTheme = editor.getTheme();
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            editor.setTheme(newTheme);
+        }
+        
+        function testMobileFeatures() {
+            if ('ontouchstart' in window) {
+                alert('✅ Touch device detected! Mobile optimizations are active.');
+            } else {
+                alert('ℹ️ Desktop detected. Mobile features are available but may not be fully testable.');
+            }
+            
+            // Test virtual keyboard detection
+            const initialHeight = window.innerHeight;
+            
+            setTimeout(() => {
+                const currentHeight = window.innerHeight;
+                const heightDiff = initialHeight - currentHeight;
+                
+                if (heightDiff > 100) {
+                    console.log('Virtual keyboard detected, height difference:', heightDiff);
+                } else {
+                    console.log('No virtual keyboard detected');
+                }
+            }, 1000);
+        }
+        
+        // Add orientation change handler
+        window.addEventListener('orientationchange', function() {
+            setTimeout(() => {
+                updateViewportSize();
+                console.log('Orientation changed to:', window.orientation);
+            }, 100);
+        });
+        
+        // Add touch event logging for debugging
+        document.addEventListener('touchstart', function(e) {
+            console.log('Touch start:', e.touches.length, 'touches');
+        });
+        
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 1) {
+                console.log('Touch move:', e.touches[0].clientX, e.touches[0].clientY);
+            }
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            console.log('Touch end');
+        });
+    </script>
+</body>
+</html>

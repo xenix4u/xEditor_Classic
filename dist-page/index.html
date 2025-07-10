@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Classic - 강력한 한국형 WYSIWYG 에디터</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background-color: #f7fafc;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 50%, #6d28d9 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: move 20s linear infinite;
+        }
+        
+        @keyframes move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(20px, 20px); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            padding: 16px 48px;
+            background: white;
+            color: #5b21b6;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(91,33,182,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(91,33,182,0.3);
+        }
+        
+        .download-btn:hover::before {
+            left: 100%;
+        }
+        
+        .version {
+            margin-top: 10px;
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+        
+        .features {
+            padding: 80px 0;
+            background: white;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .feature-card {
+            padding: 32px;
+            background: white;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            border-color: #cbd5e0;
+        }
+        
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        h2 {
+            font-size: 2.8em;
+            text-align: center;
+            margin-bottom: 24px;
+            color: #1a202c;
+            font-weight: 700;
+        }
+        
+        h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+        
+        .demo-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+        
+        .demo-btn {
+            display: inline-block;
+            padding: 14px 36px;
+            background: linear-gradient(135deg, #5b21b6 0%, #6d28d9 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(91,33,182,0.3);
+        }
+        
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(91,33,182,0.4);
+        }
+        
+        .installation {
+            padding: 80px 0;
+            background: white;
+        }
+        
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 24px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 24px 0;
+            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+            line-height: 1.6;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #2d3748;
+        }
+        
+        /* Syntax highlighting styles */
+        .code-block .comment {
+            color: #718096;
+            font-style: italic;
+        }
+        
+        .code-block .tag {
+            color: #f56565;
+        }
+        
+        .code-block .attribute {
+            color: #63b3ed;
+        }
+        
+        .code-block .string {
+            color: #68d391;
+        }
+        
+        .code-block .keyword {
+            color: #b794f4;
+        }
+        
+        .code-block .function {
+            color: #f6ad55;
+        }
+        
+        .code-block .number {
+            color: #f687b3;
+        }
+        
+        .code-block .operator {
+            color: #cbd5e0;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            display: flex;
+            gap: 6px;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 16px;
+            width: 12px;
+            height: 12px;
+            background: #fc5c65;
+            border-radius: 50%;
+            box-shadow: 20px 0 0 #fed330, 40px 0 0 #26de81;
+        }
+        
+        .tab-container {
+            margin: 30px 0;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            font-weight: 600;
+            color: #718096;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab.active {
+            color: #5b21b6;
+            border-bottom: 3px solid #5b21b6;
+            margin-bottom: -2px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .step {
+            margin: 20px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .step::before {
+            content: counter(step);
+            counter-increment: step;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .step-content {
+            counter-reset: step;
+        }
+        
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        .footer a {
+            color: #a78bfa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .download-section {
+            padding: 60px 0;
+            background: white;
+            text-align: center;
+        }
+        
+        .download-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .download-option {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .download-option h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .download-option .size {
+            color: #718096;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .download-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #5b21b6;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .download-link:hover {
+            background: #4c1d95;
+            transform: translateY(-1px);
+        }
+        
+        .gnuboard-section {
+            background: #edf2f7;
+            padding: 40px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .warning {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .success {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        /* Additional syntax highlighting helpers */
+        .variable { color: #e2e8f0; }
+        .attribute { color: #63b3ed; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>xEditor Classic</h1>
+            <p class="subtitle">강력하고 유연한 한국형 WYSIWYG 에디터</p>
+            <a href="#download" class="download-btn">무료 다운로드</a>
+            <p class="version">v1.0.0 | MIT License</p>
+        </div>
+    </header>
+
+    <section class="features">
+        <div class="container">
+            <h2>주요 기능</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✏️</div>
+                    <h3>풍부한 편집 기능</h3>
+                    <p>글꼴, 크기, 색상, 정렬 등 다양한 텍스트 편집 기능을 제공합니다. 들여쓰기/내어쓰기 기능도 완벽 지원합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🖼️</div>
+                    <h3>미디어 지원</h3>
+                    <p>이미지 업로드, 드래그&드롭, 크기 조절, 동영상 삽입 등 멀티미디어 콘텐츠를 쉽게 관리할 수 있습니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>쉬운 통합</h3>
+                    <p>그누보드, 워드프레스, XE 등 다양한 CMS와 쉽게 통합할 수 있습니다. 단 몇 줄의 코드로 설치 가능!</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>반응형 디자인</h3>
+                    <p>모바일, 태블릿, 데스크톱 모든 기기에서 완벽하게 작동합니다. 터치 인터페이스도 지원합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>빠른 성능</h3>
+                    <p>최적화된 코드로 빠른 로딩과 부드러운 편집 경험을 제공합니다. 대용량 문서도 문제없이 처리합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>보안 강화</h3>
+                    <p>XSS 공격 방지를 위한 콘텐츠 필터링과 안전한 HTML 처리를 지원합니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <div class="container">
+            <h2>실시간 데모 체험</h2>
+            <p style="text-align: center; font-size: 1.2em; color: #4a5568; margin-bottom: 40px;">
+                xEditor Classic의 강력한 기능을 직접 체험해보세요.<br>
+                실제 작동하는 에디터를 통해 모든 기능을 테스트할 수 있습니다.
+            </p>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <a href="https://xenix.net/xeditor_demo/" target="_blank" class="demo-btn" style="font-size: 1.2em; padding: 18px 50px;">🚀 라이브 데모 보기</a>
+            </div>
+            <div style="background: #edf2f7; padding: 30px; border-radius: 12px; max-width: 800px; margin: 0 auto;">
+                <h4 style="margin-bottom: 20px; color: #2d3748;">데모에서 체험할 수 있는 기능:</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #48bb78;">✓</span> 풍부한 텍스트 편집 기능
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #48bb78;">✓</span> 이미지 업로드 및 편집
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #48bb78;">✓</span> 표(Table) 생성 및 편집
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #48bb78;">✓</span> 코드 블록 및 구문 강조
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #48bb78;">✓</span> 실시간 미리보기
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #48bb78;">✓</span> 반응형 모바일 인터페이스
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="download" class="download-section">
+        <div class="container">
+            <h2>다운로드</h2>
+            <div class="download-options">
+                <div class="download-option">
+                    <h4>전체 패키지</h4>
+                    <p class="size">약 600KB</p>
+                    <a href="xeditor-classic-v1.0.0.zip" class="download-link">다운로드</a>
+                </div>
+                <div class="download-option">
+                    <h4>CDN 사용</h4>
+                    <p class="size">즉시 사용 가능</p>
+                    <a href="#cdn-usage" class="download-link">사용법 보기</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="installation">
+        <div class="container">
+            <h2>설치 방법</h2>
+            
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('basic')">기본 설치</button>
+                    <button class="tab" onclick="showTab('gnuboard')">그누보드</button>
+                    <button class="tab" onclick="showTab('wordpress')">워드프레스</button>
+                    <button class="tab" onclick="showTab('xe')">XE/라이믹스</button>
+                </div>
+                
+                <div id="basic" class="tab-content active">
+                    <h3>기본 설치 방법</h3>
+                    <div class="step-content">
+                        <div class="step">
+                            <strong>파일 다운로드 및 압축 해제</strong>
+                            <p>다운로드한 ZIP 파일을 웹사이트 디렉토리에 압축 해제합니다.</p>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>HTML에 CSS와 JS 파일 포함</strong>
+                            <div class="code-block">
+<span class="comment">&lt;!-- CSS 파일 --&gt;</span>
+<span class="tag">&lt;link</span> <span class="attribute">rel</span>=<span class="string">"stylesheet"</span> <span class="attribute">href</span>=<span class="string">"path/to/xeditor.min.css"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- JS 파일 (body 태그 끝나기 전에) --&gt;</span>
+<span class="tag">&lt;script</span> <span class="attribute">src</span>=<span class="string">"path/to/xeditor.min.js"</span><span class="tag">&gt;&lt;/script&gt;</span></div>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>에디터 초기화</strong>
+                            <div class="code-block">
+<span class="comment">&lt;!-- 에디터가 들어갈 컨테이너 --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attribute">id</span>=<span class="string">"myEditor"</span><span class="tag">&gt;&lt;/div&gt;</span>
+
+<span class="tag">&lt;script&gt;</span>
+<span class="comment">// 에디터 초기화</span>
+<span class="keyword">const</span> <span class="variable">editor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="function">xEditor</span>({
+    <span class="attribute">container</span>: <span class="string">'#myEditor'</span>,
+    <span class="attribute">height</span>: <span class="string">'400px'</span>,
+    <span class="attribute">toolbar</span>: {
+        <span class="attribute">items</span>: [
+            <span class="string">'bold'</span>, <span class="string">'italic'</span>, <span class="string">'underline'</span>, <span class="string">'strikethrough'</span>, <span class="string">'|'</span>,
+            <span class="string">'fontFamily'</span>, <span class="string">'fontSize'</span>, <span class="string">'|'</span>,
+            <span class="string">'textColor'</span>, <span class="string">'backgroundColor'</span>, <span class="string">'|'</span>,
+            <span class="string">'alignLeft'</span>, <span class="string">'alignCenter'</span>, <span class="string">'alignRight'</span>, <span class="string">'alignJustify'</span>, <span class="string">'|'</span>,
+            <span class="string">'orderedList'</span>, <span class="string">'unorderedList'</span>, <span class="string">'indent'</span>, <span class="string">'outdent'</span>, <span class="string">'|'</span>,
+            <span class="string">'link'</span>, <span class="string">'image'</span>, <span class="string">'table'</span>, <span class="string">'|'</span>,
+            <span class="string">'undo'</span>, <span class="string">'redo'</span>
+        ]
+    }
+});
+
+<span class="comment">// 콘텐츠 가져오기</span>
+<span class="keyword">function</span> <span class="function">getContent</span>() {
+    <span class="keyword">const</span> <span class="variable">content</span> <span class="operator">=</span> <span class="variable">editor</span>.<span class="function">getContent</span>();
+    <span class="variable">console</span>.<span class="function">log</span>(<span class="variable">content</span>);
+}
+
+<span class="comment">// 콘텐츠 설정하기</span>
+<span class="keyword">function</span> <span class="function">setContent</span>(<span class="variable">html</span>) {
+    <span class="variable">editor</span>.<span class="function">setContent</span>(<span class="variable">html</span>);
+}
+<span class="tag">&lt;/script&gt;</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="gnuboard" class="tab-content">
+                    <h3>그누보드 5 설치 방법</h3>
+                    <div class="gnuboard-section">
+                        <div class="step-content">
+                            <div class="step">
+                                <strong>xEditor 파일 업로드</strong>
+                                <p>다운로드한 파일을 <span class="highlight">/plugin/editor/xeditor/</span> 디렉토리에 업로드합니다.</p>
+                            </div>
+                            
+                            <div class="step">
+                                <strong>에디터 설정 파일 수정</strong>
+                                <p><span class="highlight">/plugin/editor/xeditor/config.php</span> 파일을 생성합니다:</p>
+                                <div class="code-block">
+<span class="tag">&lt;?php</span>
+<span class="keyword">if</span> (!<span class="function">defined</span>(<span class="string">'_GNUBOARD_'</span>)) <span class="keyword">exit</span>;
+
+<span class="comment">// xEditor 설정</span>
+<span class="keyword">function</span> <span class="function">editor_html</span>(<span class="variable">$id</span>, <span class="variable">$content</span>, <span class="variable">$is_dhtml_editor</span>=<span class="keyword">true</span>)
+{
+    <span class="keyword">global</span> <span class="variable">$g5</span>, <span class="variable">$config</span>, <span class="variable">$board</span>;
+    
+    <span class="variable">$editor_url</span> = <span class="variable">G5_PLUGIN_URL</span>.<span class="string">'/editor/xeditor'</span>;
+    
+    <span class="variable">$html</span> = <span class="string">""</span>;
+    <span class="variable">$html</span> .= <span class="string">"&lt;link rel=\"stylesheet\" href=\"{<span class="variable">$editor_url</span>}/xeditor.min.css\"&gt;\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"&lt;script src=\"{<span class="variable">$editor_url</span>}/xeditor.min.js\"&gt;&lt;/script&gt;\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"&lt;div id=\"{<span class="variable">$id</span>}_editor\"&gt;{<span class="variable">$content</span>}&lt;/div&gt;\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"&lt;textarea id=\"{<span class="variable">$id</span>}\" name=\"{<span class="variable">$id</span>}\" style=\"display:none;\"&gt;{<span class="variable">$content</span>}&lt;/textarea&gt;\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"&lt;script&gt;\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"var {<span class="variable">$id</span>}_editor = new xEditor({\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"    container: '#{<span class="variable">$id</span>}_editor',\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"    height: '350px'\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"});\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"// 폼 전송 시 에디터 내용을 textarea에 복사\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"$(document).on('submit', 'form', function() {\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"    $('#{<span class="variable">$id</span>}').val({<span class="variable">$id</span>}_editor.getContent());\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"});\n"</span>;
+    <span class="variable">$html</span> .= <span class="string">"&lt;/script&gt;\n"</span>;
+    
+    <span class="keyword">return</span> <span class="variable">$html</span>;
+}
+<span class="tag">?&gt;</span></div>
+                            </div>
+                            
+                            <div class="step">
+                                <strong>그누보드 관리자에서 에디터 선택</strong>
+                                <p>관리자 페이지 → 환경설정 → 기본환경설정에서 에디터를 'xeditor'로 변경합니다.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="success">
+                            ✅ 설치가 완료되었습니다! 게시판에서 xEditor를 사용할 수 있습니다.
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="wordpress" class="tab-content">
+                    <h3>워드프레스 설치 방법</h3>
+                    <div class="step-content">
+                        <div class="step">
+                            <strong>플러그인 디렉토리에 업로드</strong>
+                            <p><span class="highlight">/wp-content/plugins/xeditor-classic/</span> 디렉토리를 생성하고 파일을 업로드합니다.</p>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>플러그인 파일 생성</strong>
+                            <p><span class="highlight">xeditor-classic.php</span> 파일을 생성합니다:</p>
+                            <div class="code-block">
+<span class="tag">&lt;?php</span>
+<span class="comment">/**
+ * Plugin Name: xEditor Classic
+ * Description: 강력한 한국형 WYSIWYG 에디터
+ * Version: 1.0.0
+ * Author: xEditor Team
+ */</span>
+
+<span class="comment">// 에디터 스크립트 등록</span>
+<span class="function">add_action</span>(<span class="string">'admin_enqueue_scripts'</span>, <span class="string">'xeditor_enqueue_scripts'</span>);
+<span class="keyword">function</span> <span class="function">xeditor_enqueue_scripts</span>(<span class="variable">$hook</span>) {
+    <span class="keyword">if</span> (<span class="variable">$hook</span> == <span class="string">'post.php'</span> || <span class="variable">$hook</span> == <span class="string">'post-new.php'</span>) {
+        <span class="function">wp_enqueue_style</span>(<span class="string">'xeditor-css'</span>, <span class="function">plugin_dir_url</span>(<span class="variable">__FILE__</span>) . <span class="string">'xeditor.min.css'</span>);
+        <span class="function">wp_enqueue_script</span>(<span class="string">'xeditor-js'</span>, <span class="function">plugin_dir_url</span>(<span class="variable">__FILE__</span>) . <span class="string">'xeditor.min.js'</span>, <span class="function">array</span>(), <span class="string">'1.0.0'</span>, <span class="keyword">true</span>);
+        <span class="function">wp_enqueue_script</span>(<span class="string">'xeditor-init'</span>, <span class="function">plugin_dir_url</span>(<span class="variable">__FILE__</span>) . <span class="string">'init.js'</span>, <span class="function">array</span>(<span class="string">'xeditor-js'</span>), <span class="string">'1.0.0'</span>, <span class="keyword">true</span>);
+    }
+}
+<span class="tag">?&gt;</span></div>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>플러그인 활성화</strong>
+                            <p>워드프레스 관리자 → 플러그인에서 'xEditor Classic'을 활성화합니다.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="xe" class="tab-content">
+                    <h3>XE/라이믹스 설치 방법</h3>
+                    <div class="step-content">
+                        <div class="step">
+                            <strong>에디터 모듈 업로드</strong>
+                            <p><span class="highlight">/modules/editor/skins/xeditor/</span> 디렉토리에 파일을 업로드합니다.</p>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>스킨 정보 파일 생성</strong>
+                            <p><span class="highlight">skin.xml</span> 파일을 생성합니다:</p>
+                            <div class="code-block">
+<span class="tag">&lt;?xml</span> <span class="attribute">version</span>=<span class="string">"1.0"</span> <span class="attribute">encoding</span>=<span class="string">"UTF-8"</span><span class="tag">?&gt;</span>
+<span class="tag">&lt;skin</span> <span class="attribute">version</span>=<span class="string">"0.2"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title</span> <span class="attribute">xml:lang</span>=<span class="string">"ko"</span><span class="tag">&gt;</span>xEditor Classic<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;description</span> <span class="attribute">xml:lang</span>=<span class="string">"ko"</span><span class="tag">&gt;</span>강력한 한국형 WYSIWYG 에디터<span class="tag">&lt;/description&gt;</span>
+    <span class="tag">&lt;version&gt;</span>1.0.0<span class="tag">&lt;/version&gt;</span>
+    <span class="tag">&lt;date&gt;</span>2025-01-10<span class="tag">&lt;/date&gt;</span>
+    <span class="tag">&lt;author</span> <span class="attribute">email</span>=<span class="string">"admin@xenix.net"</span> <span class="attribute">link</span>=<span class="string">"https://xenix.net"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;name</span> <span class="attribute">xml:lang</span>=<span class="string">"ko"</span><span class="tag">&gt;</span>xEditor Team<span class="tag">&lt;/name&gt;</span>
+    <span class="tag">&lt;/author&gt;</span>
+<span class="tag">&lt;/skin&gt;</span></div>
+                        </div>
+                        
+                        <div class="step">
+                            <strong>관리자에서 에디터 스킨 변경</strong>
+                            <p>관리자 페이지 → 설정 → 에디터 설정에서 'xEditor Classic'을 선택합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 id="cdn-usage" style="margin-top: 60px;">CDN으로 사용하기</h3>
+            <p>다운로드 없이 CDN을 통해 바로 사용할 수 있습니다:</p>
+            <div class="code-block">
+<span class="comment">&lt;!-- CSS --&gt;</span>
+<span class="tag">&lt;link</span> <span class="attribute">rel</span>=<span class="string">"stylesheet"</span> <span class="attribute">href</span>=<span class="string">"https://xenix.net/xedit_classic/xeditor.min.css"</span><span class="tag">&gt;</span>
+
+<span class="comment">&lt;!-- JavaScript --&gt;</span>
+<span class="tag">&lt;script</span> <span class="attribute">src</span>=<span class="string">"https://xenix.net/xedit_classic/xeditor.min.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+
+<span class="comment">&lt;!-- 사용 예제 --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attribute">id</span>=<span class="string">"editor"</span><span class="tag">&gt;&lt;/div&gt;</span>
+<span class="tag">&lt;script&gt;</span>
+<span class="keyword">const</span> <span class="variable">editor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="function">xEditor</span>({
+    <span class="attribute">container</span>: <span class="string">'#editor'</span>,
+    <span class="attribute">height</span>: <span class="string">'400px'</span>
+});
+<span class="tag">&lt;/script&gt;</span></div>
+            
+            <h3 style="margin-top: 60px;">주요 옵션</h3>
+            <div class="code-block">
+<span class="keyword">const</span> <span class="variable">editor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="function">xEditor</span>({
+    <span class="attribute">container</span>: <span class="string">'#editor'</span>,          <span class="comment">// 필수: 에디터 컨테이너 선택자</span>
+    <span class="attribute">height</span>: <span class="string">'400px'</span>,              <span class="comment">// 높이 (기본값: 400px)</span>
+    <span class="attribute">width</span>: <span class="string">'100%'</span>,                <span class="comment">// 너비 (기본값: 100%)</span>
+    <span class="attribute">language</span>: <span class="string">'ko'</span>,               <span class="comment">// 언어 (기본값: ko)</span>
+    <span class="attribute">placeholder</span>: <span class="string">'내용을 입력하세요'</span>, <span class="comment">// 플레이스홀더</span>
+    <span class="attribute">theme</span>: <span class="string">'light'</span>,               <span class="comment">// 테마: light/dark</span>
+    <span class="attribute">autoSave</span>: {                   <span class="comment">// 자동 저장 설정</span>
+        <span class="attribute">enabled</span>: <span class="keyword">true</span>,
+        <span class="attribute">interval</span>: <span class="number">30000</span>           <span class="comment">// 30초마다 자동 저장</span>
+    },
+    <span class="attribute">toolbar</span>: {
+        <span class="attribute">position</span>: <span class="string">'top'</span>,          <span class="comment">// 툴바 위치: top/bottom/floating</span>
+        <span class="attribute">sticky</span>: <span class="keyword">true</span>,             <span class="comment">// 스크롤 시 툴바 고정</span>
+        <span class="attribute">items</span>: [                  <span class="comment">// 툴바 아이템 커스터마이징</span>
+            <span class="string">'bold'</span>, <span class="string">'italic'</span>, <span class="string">'underline'</span>, <span class="string">'|'</span>,
+            <span class="string">'fontFamily'</span>, <span class="string">'fontSize'</span>, <span class="string">'|'</span>,
+            <span class="string">'textColor'</span>, <span class="string">'backgroundColor'</span>, <span class="string">'|'</span>,
+            <span class="string">'alignLeft'</span>, <span class="string">'alignCenter'</span>, <span class="string">'alignRight'</span>, <span class="string">'|'</span>,
+            <span class="string">'orderedList'</span>, <span class="string">'unorderedList'</span>, <span class="string">'|'</span>,
+            <span class="string">'indent'</span>, <span class="string">'outdent'</span>, <span class="string">'|'</span>,
+            <span class="string">'link'</span>, <span class="string">'image'</span>, <span class="string">'table'</span>, <span class="string">'|'</span>,
+            <span class="string">'undo'</span>, <span class="string">'redo'</span>, <span class="string">'|'</span>,
+            <span class="string">'fullscreen'</span>
+        ]
+    }
+});</div>
+            
+            <div class="warning">
+                ⚠️ <strong>주의사항:</strong> xEditor Classic은 Internet Explorer 11 이상에서 작동합니다. 
+                최적의 성능을 위해 최신 브라우저 사용을 권장합니다.
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>xEditor Classic v1.0.0 | MIT License</p>
+            <p>문의: <a href="mailto:x@xenix.net">x@xenix.net</a> | 
+               GitHub: <a href="https://github.com/xenix/xeditor-classic" target="_blank">github.com/xenix/xeditor-classic</a></p>
+            <p style="margin-top: 20px; opacity: 0.8;">© 2025 <strong>xenix</strong>studio. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function showTab(tabName) {
+            // 모든 탭과 콘텐츠 숨기기
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 선택된 탭과 콘텐츠 표시
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

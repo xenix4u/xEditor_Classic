@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Classic - Simple Demo</title>
+    <link rel="stylesheet" href="xeditor.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #editor {
+            border: 1px solid #ddd;
+            min-height: 400px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .buttons {
+            margin: 20px 0;
+        }
+        button {
+            margin-right: 10px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>xEditor Classic - Simple Demo</h1>
+    
+    <div id="editor">
+        <h2>Welcome to xEditor Classic!</h2>
+        <p>This is a simple demo. Try the <strong>indent</strong> and <strong>outdent</strong> buttons in the toolbar!</p>
+        <ul>
+            <li>First item</li>
+            <li>Second item</li>
+            <li>Third item</li>
+        </ul>
+    </div>
+    
+    <div class="buttons">
+        <button onclick="getContent()">Get Content</button>
+        <button onclick="clearContent()">Clear</button>
+    </div>
+    
+    <div id="output"></div>
+
+    <script src="xeditor.min.js"></script>
+    <script>
+        // Wait for everything to load
+        window.addEventListener('load', function() {
+            console.log('Window loaded, initializing editor...');
+            
+            // Simple initialization
+            try {
+                window.editor = new xEditor({
+                    container: '#editor',
+                    toolbar: {
+                        items: [
+                            'bold', 'italic', 'underline', '|',
+                            'orderedList', 'unorderedList', '|',
+                            'indent', 'outdent', '|',
+                            'undo', 'redo'
+                        ]
+                    }
+                });
+                
+                console.log('Editor initialized!');
+                
+                editor.on('ready', function() {
+                    console.log('Editor is ready!');
+                });
+                
+            } catch (error) {
+                console.error('Failed to initialize:', error);
+                document.getElementById('editor').innerHTML = 
+                    '<p style="color: red;">Error: ' + error.message + '</p>';
+            }
+        });
+        
+        function getContent() {
+            if (window.editor) {
+                const content = window.editor.getContent();
+                document.getElementById('output').innerHTML = 
+                    '<h3>Content:</h3><pre>' + escapeHtml(content) + '</pre>';
+            }
+        }
+        
+        function clearContent() {
+            if (window.editor) {
+                window.editor.setContent('<p>Content cleared!</p>');
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

@@ -27,6 +27,8 @@ export class FormElementsPlugin implements Plugin {
   init(editor: Editor): void {
     this.editor = editor;
     
+    console.log('FormElementsPlugin initialized with editor:', editor);
+    
     // Make methods available
     (this as any).showFormElementsDialog = this.showFormElementsDialog.bind(this);
     
@@ -41,12 +43,16 @@ export class FormElementsPlugin implements Plugin {
   }
 
   private showFormElementsDialog(): void {
+    console.log('showFormElementsDialog called');
+    
     if (this.dialog) {
       this.dialog.remove();
     }
     
     this.dialog = this.createDialog();
     document.body.appendChild(this.dialog);
+    
+    console.log('Form elements dialog created and appended to body');
   }
 
   private createDialog(): HTMLElement {
@@ -108,12 +114,22 @@ export class FormElementsPlugin implements Plugin {
       { value: 'file', label: 'File Upload' }
     ];
 
-    elementTypes.forEach(type => {
-      if (this.config.enabledElements?.includes(type.value) || 
-          (type.value !== 'input' && this.config.enabledElements?.includes('input'))) {
+    elementTypes.forEach((type, index) => {
+      // Check if this element type is enabled
+      const isEnabled = this.config.enabledElements?.includes(type.value) || 
+                       this.config.enabledElements?.includes('input') ||
+                       !this.config.enabledElements; // If no specific config, enable all
+      
+      if (isEnabled) {
         const option = createElement('option', {
           value: type.value
         }, [type.label]);
+        
+        // Set button as default (first option)
+        if (index === 0) {
+          (option as HTMLOptionElement).selected = true;
+        }
+        
         typeSelect.appendChild(option);
       }
     });
@@ -130,6 +146,14 @@ export class FormElementsPlugin implements Plugin {
     // Update properties when type changes
     typeSelect.addEventListener('change', () => {
       this.updateProperties(propertiesContainer, typeSelect.value);
+      // Update preview immediately when type changes
+      setTimeout(() => {
+        this.updatePreview(
+          previewContainer,
+          typeSelect.value,
+          this.getPropertiesValues(propertiesContainer)
+        );
+      }, 10); // Small delay to ensure properties are updated first
     });
 
     // Initialize with first type
@@ -171,11 +195,24 @@ export class FormElementsPlugin implements Plugin {
     });
 
     insertBtn.addEventListener('click', () => {
-      const html = this.generateFormElement(
-        typeSelect.value,
-        this.getPropertiesValues(propertiesContainer)
-      );
-      this.editor.execCommand('insertHTML', html);
+      const properties = this.getPropertiesValues(propertiesContainer);
+      const html = this.generateFormElement(typeSelect.value, properties);
+      
+      console.log('Form Element Properties:', properties);
+      console.log('Generated HTML:', html);
+      console.log('Editor content before:', this.editor.contentElement.innerHTML);
+      
+      // Focus the editor first
+      this.editor.focus();
+      
+      try {
+        this.editor.execCommand('insertHTML', html);
+        console.log('insertHTML command executed successfully');
+        console.log('Editor content after:', this.editor.contentElement.innerHTML);
+      } catch (error) {
+        console.error('insertHTML command failed:', error);
+      }
+      
       overlay.remove();
     });
 
@@ -197,13 +234,24 @@ export class FormElementsPlugin implements Plugin {
         this.getPropertiesValues(propertiesContainer)
       );
     });
+    
+    // Also update preview on change events (for dropdowns and checkboxes)
+    propertiesContainer.addEventListener('change', () => {
+      this.updatePreview(
+        previewContainer,
+        typeSelect.value,
+        this.getPropertiesValues(propertiesContainer)
+      );
+    });
 
-    // Initial preview
-    this.updatePreview(
-      previewContainer,
-      typeSelect.value,
-      this.getPropertiesValues(propertiesContainer)
-    );
+    // Initial preview - add slight delay to ensure DOM is ready
+    setTimeout(() => {
+      this.updatePreview(
+        previewContainer,
+        typeSelect.value,
+        this.getPropertiesValues(propertiesContainer)
+      );
+    }, 50);
 
     // Close on overlay click
     overlay.addEventListener('click', (e) => {
@@ -223,6 +271,21 @@ export class FormElementsPlugin implements Plugin {
     properties.forEach(prop => {
       const propertyField = this.createPropertyField(prop);
       container.appendChild(propertyField);
+    });
+    
+    // Add event listeners to new property fields for preview updates
+    const inputs = container.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      input.addEventListener('input', () => {
+        // Trigger preview update - this will be handled by the parent container listeners
+        const event = new Event('input', { bubbles: true });
+        container.dispatchEvent(event);
+      });
+      input.addEventListener('change', () => {
+        // Trigger preview update - this will be handled by the parent container listeners
+        const event = new Event('change', { bubbles: true });
+        container.dispatchEvent(event);
+      });
     });
   }
 
@@ -382,6 +445,7 @@ export class FormElementsPlugin implements Plugin {
 
   private updatePreview(container: HTMLElement, elementType: string, properties: Record<string, any>): void {
     const html = this.generateFormElement(elementType, properties, true);
+    console.log('Preview HTML for', elementType, ':', html);
     container.innerHTML = html;
   }
 
@@ -390,14 +454,23 @@ export class FormElementsPlugin implements Plugin {
     const name = properties.name || '';
     const className = properties.className || '';
     
-    const baseAttrs = `${id ? `id="${id}"` : ''} ${name ? `name="${name}"` : ''} ${className ? `class="${className}"` : ''}`;
+    const baseAttrs = [
+      id ? `id="${id}"` : '',
+      name ? `name="${name}"` : '',
+      className ? `class="${className}"` : ''
+    ].filter(Boolean).join(' ');
 
     switch (elementType) {
       case 'button':
         const btnClass = this.config.defaultStyles ? 
-          `xeditor-btn xeditor-btn--${properties.variant || 'primary'} ${className}` : 
+          `xeditor-btn xeditor-btn--${properties.variant || 'primary'} ${className}`.trim() : 
           className;
-        return `<button type="${properties.type || 'button'}" ${id ? `id="${id}"` : ''} class="${btnClass}">${properties.text || 'Button'}</button>`;
+        const buttonAttrs = [
+          `type="${properties.type || 'button'}"`,
+          id ? `id="${id}"` : '',
+          btnClass ? `class="${btnClass}"` : ''
+        ].filter(Boolean).join(' ');
+        return `<button ${buttonAttrs}>${properties.text || 'Button'}</button>`;
 
       case 'checkbox':
       case 'radio':
@@ -426,9 +499,8 @@ export class FormElementsPlugin implements Plugin {
       case 'range':
       case 'color':
       case 'file':
-        const type = elementType;
-        const inputAttrs = this.getInputAttributes(type, properties);
-        return `<input type="${type}" ${baseAttrs} ${inputAttrs}>`;
+        const inputAttrs = this.getInputAttributes(elementType, properties);
+        return `<input type="${elementType}" ${baseAttrs} ${inputAttrs}>`;
 
       default: // text input
         return `<input type="text" ${baseAttrs} placeholder="${properties.placeholder || ''}" value="${properties.value || ''}" ${properties.required ? 'required' : ''}>`;

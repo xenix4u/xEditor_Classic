@@ -39,17 +39,36 @@
 
 .xeditor-toolbar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  flex-direction: column;
   padding: 8px;
   background-color: var(--xeditor-toolbar-bg);
   border-bottom: 1px solid var(--xeditor-toolbar-border);
   border-radius: 4px 4px 0 0;
-  gap: 4px;
+  gap: 8px;
   width: 100%;
   box-sizing: border-box;
   overflow: visible;
   min-height: 40px;
+}
+
+.xeditor-toolbar__items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.xeditor-toolbar__status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #666;
+  width: 100%;
+  border-top: 1px solid var(--xeditor-toolbar-border);
+  padding-top: 8px;
+  margin-top: 4px;
 }
 
 .xeditor-toolbar--sticky {
@@ -152,12 +171,12 @@
 }
 
 .xeditor-toolbar__dropdown-trigger {
-  padding-right: 20px;
+  padding-right: 8px;
 }
 
 .xeditor-toolbar__dropdown-arrow {
   position: absolute;
-  right: 6px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
@@ -167,8 +186,8 @@
 }
 
 .xeditor-toolbar__dropdown-arrow svg {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
 }
 
 .xeditor-toolbar__dropdown-menu {

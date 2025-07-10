@@ -1,12 +1,12 @@
-import { XEditor } from './core/editor';
+import { xEditor } from './core/editor';
 import { EditorConfig } from './types';
 import './styles/editor.css';
 
-export default XEditor;
-export { XEditor, EditorConfig };
+export default xEditor;
+export { xEditor, EditorConfig };
 
 export * from './types';
 
 if (typeof window !== 'undefined') {
-  (window as any).XEditor = XEditor;
+  (window as any).xEditor = xEditor;
 }

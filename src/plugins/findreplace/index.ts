@@ -278,8 +278,8 @@ export class FindReplacePlugin implements Plugin {
       null
     );
 
-    let node;
-    while (node = walker.nextNode()) {
+    let node: Node | null;
+    while ((node = walker.nextNode()) !== null) {
       const textNode = node as Text;
       const nodeText = textNode.textContent || '';
       let match;

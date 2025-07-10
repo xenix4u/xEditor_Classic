@@ -309,7 +309,7 @@ export class MarkdownPlugin implements Plugin {
     html = html.replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1">');
     
     // Line breaks
-    html = html.replace(/  \n/g, '<br>\n');
+    html = html.replace(/ {2}\n/g, '<br>\n');
     
     // Paragraphs
     html = html.replace(/\n\n/g, '</p><p>');

@@ -18,7 +18,7 @@ export class HistoryManagerImpl implements HistoryManager {
   private isRestoring: boolean = false;
   private lastRecordTime: number = 0;
   private minRecordInterval: number = 500; // Minimum time between records
-  private recordTimer: NodeJS.Timeout | null = null;
+  private recordTimer: ReturnType<typeof setTimeout> | null = null;
   private lastContent: string = '';
 
   constructor(editor: HTMLElement, maxSize: number = 100) {
@@ -30,22 +30,22 @@ export class HistoryManagerImpl implements HistoryManager {
 
   undo(): void {
     if (!this.canUndo()) {
-      console.log('[History] Cannot undo - no history available');
+      // Cannot undo - no history available
       return;
     }
     
-    console.log(`[History] Undo: currentIndex ${this.currentIndex} -> ${this.currentIndex - 1}`);
+    // Undo operation
     this.currentIndex--;
     this.restore(this.history[this.currentIndex]);
   }
 
   redo(): void {
     if (!this.canRedo()) {
-      console.log('[History] Cannot redo - no future history');
+      // Cannot redo - no future history
       return;
     }
     
-    console.log(`[History] Redo: currentIndex ${this.currentIndex} -> ${this.currentIndex + 1}`);
+    // Redo operation
     this.currentIndex++;
     this.restore(this.history[this.currentIndex]);
   }
@@ -60,13 +60,13 @@ export class HistoryManagerImpl implements HistoryManager {
 
   record = debounce((): void => {
     if (this.isRestoring) {
-      console.log('[History] Skip record - currently restoring');
+      // Skip record - currently restoring
       return;
     }
     
     const now = Date.now();
     if (now - this.lastRecordTime < this.minRecordInterval) {
-      console.log('[History] Skip record - too soon after last record');
+      // Skip record - too soon after last record
       return;
     }
     
@@ -76,7 +76,7 @@ export class HistoryManagerImpl implements HistoryManager {
     if (this.currentIndex >= 0) {
       const lastState = this.history[this.currentIndex];
       if (lastState.content === state.content) {
-        console.log('[History] Skip record - content unchanged');
+        // Skip record - content unchanged
         return;
       }
     }
@@ -84,7 +84,7 @@ export class HistoryManagerImpl implements HistoryManager {
     // Remove any redo history when new changes are made
     if (this.currentIndex < this.history.length - 1) {
       this.history = this.history.slice(0, this.currentIndex + 1);
-      console.log('[History] Removed redo history');
+      // Removed redo history
     }
     
     this.history.push(state);
@@ -92,12 +92,12 @@ export class HistoryManagerImpl implements HistoryManager {
     
     if (this.history.length > this.maxSize) {
       this.history.shift();
-      console.log('[History] Removed oldest entry - max size reached');
+      // Removed oldest entry - max size reached
     } else {
       this.currentIndex++;
     }
     
-    console.log(`[History] Recorded state - index: ${this.currentIndex}, total: ${this.history.length}`);
+    // Recorded state
   }, 500);
 
   clear(): void {
@@ -109,14 +109,14 @@ export class HistoryManagerImpl implements HistoryManager {
       clearTimeout(this.recordTimer);
       this.recordTimer = null;
     }
-    console.log('[History] Cleared history');
+    // Cleared history
     setTimeout(() => this.recordImmediate(), 100);
   }
   
   // Force immediate record without debounce
   recordImmediate(): void {
     if (this.isRestoring) {
-      console.log('[History] Skip immediate record - currently restoring');
+      // Skip immediate record - currently restoring
       return;
     }
     
@@ -124,21 +124,21 @@ export class HistoryManagerImpl implements HistoryManager {
     
     // Check if content changed
     if (state.content === this.lastContent) {
-      console.log('[History] Skip immediate record - content unchanged');
+      // Skip immediate record - content unchanged
       return;
     }
     
     if (this.currentIndex >= 0) {
       const lastState = this.history[this.currentIndex];
       if (lastState.content === state.content) {
-        console.log('[History] Skip immediate record - same as current state');
+        // Skip immediate record - same as current state
         return;
       }
     }
     
     if (this.currentIndex < this.history.length - 1) {
       this.history = this.history.slice(0, this.currentIndex + 1);
-      console.log('[History] Removed redo history (immediate)');
+      // Removed redo history (immediate)
     }
     
     this.history.push(state);
@@ -147,12 +147,12 @@ export class HistoryManagerImpl implements HistoryManager {
     
     if (this.history.length > this.maxSize) {
       this.history.shift();
-      console.log('[History] Removed oldest entry (immediate) - max size reached');
+      // Removed oldest entry (immediate) - max size reached
     } else {
       this.currentIndex++;
     }
     
-    console.log(`[History] Immediate record - index: ${this.currentIndex}, total: ${this.history.length}`);
+    // Immediate record complete
   }
 
   getHistory(): readonly HistoryState[] {
@@ -254,8 +254,8 @@ export class HistoryManagerImpl implements HistoryManager {
       null
     );
     
-    let currentNode;
-    while (currentNode = walker.nextNode()) {
+    let currentNode: Node | null;
+    while ((currentNode = walker.nextNode()) !== null) {
       textNodes.push(currentNode as Text);
     }
     

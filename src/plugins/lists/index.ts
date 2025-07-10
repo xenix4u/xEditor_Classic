@@ -10,22 +10,96 @@ export class ListsPlugin implements Plugin {
     
     // Register list commands
     editor.commands.register('insertOrderedList', {
-      execute: () => this.toggleList('ol'),
+      execute: () => {
+        this.toggleList('ol');
+      },
       queryState: () => this.isInList('ol')
     });
     
     editor.commands.register('insertUnorderedList', {
-      execute: () => this.toggleList('ul'),
+      execute: () => {
+        this.toggleList('ul');
+      },
       queryState: () => this.isInList('ul')
     });
     
     editor.commands.register('indent', {
-      execute: () => this.changeIndent(1),
+      execute: () => {
+        
+        // Save selection before any operation
+        this.editor.selection.save();
+        
+        try {
+          // Focus the content element
+          this.editor.contentElement.focus();
+          
+          // Check if we're in a list
+          const range = this.editor.selection.range;
+          if (range) {
+            const listItem = findParentElement(range.commonAncestorContainer, el => 
+              el.tagName === 'LI'
+            );
+            
+            if (listItem && listItem instanceof HTMLLIElement) {
+              // Handle list item indentation
+              this.indentListItem(listItem);
+            } else {
+              // Handle general text indentation
+              this.indentGeneralText(1);
+            }
+          }
+          
+          // Restore selection
+          this.editor.selection.restore();
+          
+          // Update toolbar state
+          if (this.editor.toolbar) {
+            this.editor.toolbar.updateState();
+          }
+        } catch (error) {
+          console.error('Error in indent command:', error);
+        }
+      },
       canExecute: () => this.canIndent()
     });
     
     editor.commands.register('outdent', {
-      execute: () => this.changeIndent(-1),
+      execute: () => {
+        
+        // Save selection before any operation
+        this.editor.selection.save();
+        
+        try {
+          // Focus the content element
+          this.editor.contentElement.focus();
+          
+          // Check if we're in a list
+          const range = this.editor.selection.range;
+          if (range) {
+            const listItem = findParentElement(range.commonAncestorContainer, el => 
+              el.tagName === 'LI'
+            );
+            
+            if (listItem && listItem instanceof HTMLLIElement) {
+              // Handle list item outdentation
+              this.outdentListItem(listItem);
+            } else {
+              // Handle general text outdentation
+              this.indentGeneralText(-1);
+            }
+          }
+          
+          // Restore selection
+          this.editor.selection.restore();
+          
+          // Update toolbar state
+          if (this.editor.toolbar) {
+            this.editor.toolbar.updateState();
+          }
+        } catch (error) {
+          console.error('Error in outdent command:', error);
+        }
+      },
       canExecute: () => this.canOutdent()
     });
     
@@ -42,17 +116,46 @@ export class ListsPlugin implements Plugin {
   }
   
   private toggleList(type: 'ul' | 'ol'): void {
+    
+    // Focus the editor first to ensure proper selection
+    this.editor.focus();
+    
     const selection = this.editor.selection;
     const range = selection.range;
-    if (!range) return;
     
-    // const listItem = findParentElement(range.commonAncestorContainer, el => 
+    if (!range) {
+      // If no range, create a collapsed selection at the start of the editor
+      const newRange = document.createRange();
+      newRange.setStart(this.editor.contentElement, 0);
+      newRange.collapse(true);
+      
+      const windowSelection = window.getSelection();
+      if (windowSelection) {
+        windowSelection.removeAllRanges();
+        windowSelection.addRange(newRange);
+      }
+      
+      // Try again with the new range
+      const newSelectionRange = selection.range;
+      if (!newSelectionRange) {
+        return;
+      }
+    }
+    
+    // Get the current range (which might be the newly created one)
+    const currentRange = selection.range;
+    if (!currentRange) {
+      return;
+    }
+    
+    // const listItem = findParentElement(currentRange.commonAncestorContainer, el => 
     //   el.tagName === 'LI'
     // );
     
-    const list = findParentElement(range.commonAncestorContainer, el => 
+    const list = findParentElement(currentRange.commonAncestorContainer, el => 
       el.tagName === 'UL' || el.tagName === 'OL'
     );
+    
     
     if (list && list.tagName.toLowerCase() === type) {
       // Remove list
@@ -68,7 +171,9 @@ export class ListsPlugin implements Plugin {
   
   private createList(type: 'ul' | 'ol'): void {
     const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) return;
+    if (!selection || selection.rangeCount === 0) {
+      return;
+    }
     
     const range = selection.getRangeAt(0);
     const container = range.commonAncestorContainer;
@@ -77,22 +182,54 @@ export class ListsPlugin implements Plugin {
     let block = container.nodeType === Node.TEXT_NODE ? 
       container.parentElement : container as Element;
     
+    
     while (block && !this.isBlockElement(block)) {
       block = block.parentElement;
     }
     
-    if (!block) return;
+    
+    if (!block) {
+      // If no block element, create list at editor root
+      const list = document.createElement(type);
+      const listItem = document.createElement('li');
+      
+      // Add a text node to the list item
+      listItem.appendChild(document.createTextNode(''));
+      
+      list.appendChild(listItem);
+      this.editor.contentElement.appendChild(list);
+      
+      // Set selection to the list item
+      const newRange = document.createRange();
+      newRange.selectNodeContents(listItem);
+      newRange.collapse(true);
+      const windowSelection = window.getSelection();
+      if (windowSelection) {
+        windowSelection.removeAllRanges();
+        windowSelection.addRange(newRange);
+      }
+      
+      return;
+    }
     
     const list = document.createElement(type);
     const listItem = document.createElement('li');
     
+    
     // Move content to list item
-    while (block.firstChild) {
-      listItem.appendChild(block.firstChild);
+    if (block.textContent?.trim()) {
+      // If block has content, move it to list item
+      while (block.firstChild) {
+        listItem.appendChild(block.firstChild);
+      }
+    } else {
+      // If block is empty, add empty text node
+      listItem.appendChild(document.createTextNode(''));
     }
     
     list.appendChild(listItem);
     block.parentNode?.replaceChild(list, block);
+    
     
     // Restore selection
     const newRange = document.createRange();
@@ -100,6 +237,7 @@ export class ListsPlugin implements Plugin {
     newRange.collapse(false);
     selection.removeAllRanges();
     selection.addRange(newRange);
+    
   }
   
   private removeList(list: Element): void {
@@ -141,23 +279,6 @@ export class ListsPlugin implements Plugin {
     return type ? list.tagName.toLowerCase() === type : true;
   }
   
-  private changeIndent(direction: number): void {
-    const selection = this.editor.selection;
-    const range = selection.range;
-    if (!range) return;
-    
-    const listItem = findParentElement(range.commonAncestorContainer, el => 
-      el.tagName === 'LI'
-    ) as HTMLLIElement;
-    
-    if (!listItem) return;
-    
-    if (direction > 0) {
-      this.indentListItem(listItem);
-    } else {
-      this.outdentListItem(listItem);
-    }
-  }
   
   private indentListItem(item: HTMLLIElement): void {
     const previousItem = item.previousElementSibling as HTMLLIElement;
@@ -203,9 +324,13 @@ export class ListsPlugin implements Plugin {
       el.tagName === 'LI'
     );
     
-    if (!listItem) return false;
+    if (listItem) {
+      // In a list: can indent if there's a previous list item
+      return listItem.previousElementSibling?.tagName === 'LI';
+    }
     
-    return listItem.previousElementSibling?.tagName === 'LI';
+    // General text: can always indent
+    return true;
   }
   
   private canOutdent(): boolean {
@@ -217,12 +342,28 @@ export class ListsPlugin implements Plugin {
       el.tagName === 'LI'
     );
     
-    if (!listItem) return false;
+    if (listItem) {
+      // In a list: can outdent if in a nested list
+      const parentList = listItem.parentElement;
+      if (!parentList) return false;
+      return parentList.parentElement?.tagName === 'LI';
+    }
     
-    const parentList = listItem.parentElement;
-    if (!parentList) return false;
+    // General text: can outdent if there's existing indent
+    let block = range.commonAncestorContainer;
+    if (block.nodeType === Node.TEXT_NODE) {
+      block = block.parentElement || block;
+    }
     
-    return parentList.parentElement?.tagName === 'LI';
+    while (block && !this.isBlockElement(block as Element)) {
+      block = (block as Element).parentElement || block;
+    }
+    
+    if (!block) return false;
+    
+    const blockElement = block as HTMLElement;
+    const currentPadding = parseInt(window.getComputedStyle(blockElement).paddingLeft || '0', 10);
+    return currentPadding > 0;
   }
   
   private handleKeyDown = (e: KeyboardEvent): void => {
@@ -328,6 +469,77 @@ export class ListsPlugin implements Plugin {
     }
   };
   
+  private indentGeneralText(direction: number): void {
+    
+    const selection = this.editor.selection;
+    const range = selection.range;
+    if (!range) {
+      return;
+    }
+    
+    // Get the current block element
+    let block = range.commonAncestorContainer;
+    
+    if (block.nodeType === Node.TEXT_NODE) {
+      block = block.parentElement || block;
+    }
+    
+    
+    // Find the closest block element
+    while (block && block !== this.editor.contentElement && !this.isBlockElement(block as Element)) {
+      block = (block as Element).parentElement || block;
+    }
+    
+    
+    if (!block || block === this.editor.contentElement) {
+      // If no block element found, create a wrapper
+      const wrapper = document.createElement('div');
+      const text = range.toString();
+      wrapper.textContent = text;
+      
+      if (direction > 0) {
+        wrapper.style.paddingLeft = '20px';
+      }
+      
+      range.deleteContents();
+      range.insertNode(wrapper);
+      
+      // Update selection
+      const newRange = document.createRange();
+      newRange.selectNodeContents(wrapper);
+      newRange.collapse(false);
+      const windowSelection = window.getSelection();
+      if (windowSelection) {
+        windowSelection.removeAllRanges();
+        windowSelection.addRange(newRange);
+      }
+      
+      return;
+    }
+    
+    const blockElement = block as HTMLElement;
+    
+    if (direction > 0) {
+      // Indent: add padding-left instead of margin-left for better compatibility
+      const currentPadding = parseInt(window.getComputedStyle(blockElement).paddingLeft || '0', 10);
+      const newPadding = currentPadding + 20;
+      blockElement.style.paddingLeft = `${newPadding}px`;
+      
+      // Force update
+      blockElement.setAttribute('data-indent-level', String((parseInt(blockElement.getAttribute('data-indent-level') || '0') + 1)));
+    } else {
+      // Outdent: reduce padding-left
+      const currentPadding = parseInt(window.getComputedStyle(blockElement).paddingLeft || '0', 10);
+      const newPadding = Math.max(0, currentPadding - 20);
+      blockElement.style.paddingLeft = newPadding > 0 ? `${newPadding}px` : '';
+      
+      // Force update
+      const indentLevel = parseInt(blockElement.getAttribute('data-indent-level') || '0');
+      blockElement.setAttribute('data-indent-level', String(Math.max(0, indentLevel - 1)));
+    }
+    
+  }
+
   private isBlockElement(element: Element): boolean {
     const blockTags = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
                       'BLOCKQUOTE', 'PRE', 'UL', 'OL', 'LI'];

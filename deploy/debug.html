@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xEditor Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .debug {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        #test-editor {
+            border: 1px solid #ccc;
+            min-height: 200px;
+            padding: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>xEditor Debug Page</h1>
+    
+    <div class="debug" id="log"></div>
+    
+    <h2>Test Editor Container</h2>
+    <div id="test-editor">
+        <p>This is a test editor container.</p>
+    </div>
+    
+    <button onclick="tryInitialize()">Try Initialize Editor</button>
+    
+    <script src="xeditor.min.js"></script>
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            log.appendChild(div);
+        }
+        
+        // Check what's loaded
+        addLog('Page loaded');
+        addLog('typeof window.xEditor: ' + typeof window.xEditor);
+        addLog('typeof window.xeditor: ' + typeof window.xeditor);
+        
+        // Check for jQuery (some editors require it)
+        addLog('jQuery loaded: ' + (typeof jQuery !== 'undefined' ? 'Yes' : 'No'));
+        
+        // If xeditor exists, check its properties
+        if (window.xeditor) {
+            addLog('window.xeditor exists');
+            addLog('xeditor properties: ' + Object.keys(window.xeditor).join(', '));
+            
+            if (window.xeditor.default) {
+                addLog('xeditor.default exists');
+                addLog('typeof xeditor.default: ' + typeof window.xeditor.default);
+            }
+            
+            if (window.xeditor.xEditor) {
+                addLog('xeditor.xEditor exists');
+                addLog('typeof xeditor.xEditor: ' + typeof window.xeditor.xEditor);
+            }
+        }
+        
+        // Check global scope for any xEditor related objects
+        for (let key in window) {
+            if (key.toLowerCase().includes('editor') && key !== 'AudioWorkletNode') {
+                addLog('Found in window: ' + key + ' (type: ' + typeof window[key] + ')');
+            }
+        }
+        
+        function tryInitialize() {
+            addLog('=== Trying to initialize editor ===');
+            
+            try {
+                // Check if container exists
+                const container = document.getElementById('test-editor');
+                if (!container) {
+                    throw new Error('Container #test-editor not found');
+                }
+                addLog('Container found: ' + container.tagName, 'success');
+                
+                // Try different initialization methods
+                let editor = null;
+                
+                // Method 1: Direct xEditor
+                if (typeof window.xEditor === 'function') {
+                    addLog('Trying: new xEditor({ container: "#test-editor" })', 'info');
+                    editor = new window.xEditor({ container: '#test-editor' });
+                }
+                // Method 2: xeditor (lowercase)
+                else if (typeof window.xeditor === 'function') {
+                    addLog('Trying: new xeditor({ container: "#test-editor" })', 'info');
+                    editor = new window.xeditor({ container: '#test-editor' });
+                }
+                // Method 3: xeditor.default
+                else if (window.xeditor && typeof window.xeditor.default === 'function') {
+                    addLog('Trying: new xeditor.default({ container: "#test-editor" })', 'info');
+                    editor = new window.xeditor.default({ container: '#test-editor' });
+                }
+                // Method 4: xeditor.xEditor
+                else if (window.xeditor && typeof window.xeditor.xEditor === 'function') {
+                    addLog('Trying: new xeditor.xEditor({ container: "#test-editor" })', 'info');
+                    editor = new window.xeditor.xEditor({ container: '#test-editor' });
+                }
+                // Method 5: Check if it's already a constructed object
+                else if (window.xEditor && typeof window.xEditor === 'object') {
+                    addLog('xEditor is an object, not a constructor', 'error');
+                    addLog('xEditor properties: ' + Object.keys(window.xEditor).join(', '));
+                }
+                else {
+                    throw new Error('No suitable constructor found');
+                }
+                
+                if (editor) {
+                    addLog('Editor initialized successfully!', 'success');
+                    window.testEditor = editor;
+                }
+                
+            } catch (error) {
+                addLog('Error: ' + error.message, 'error');
+                addLog('Stack: ' + error.stack, 'error');
+            }
+        }
+        
+        // Try auto-initialize after a delay
+        setTimeout(() => {
+            addLog('=== Auto-initialize attempt ===');
+            tryInitialize();
+        }, 1000);
+    </script>
+</body>
+</html>

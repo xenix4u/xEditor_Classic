@@ -46,12 +46,15 @@ import {
   AutoSavePlugin,
   VersionHistoryPlugin,
   CommentsPlugin,
-  TrackChangesPlugin
+  TrackChangesPlugin,
+  MobileOptimizationPlugin,
+  SettingsPlugin,
+  IconsPlugin
 } from '../plugins';
 import { KeyboardManager } from './keyboard';
 import { AccessibilityManager } from '../utils/accessibility';
 
-export class XEditor implements Editor {
+export class xEditor implements Editor {
   config: EditorConfig;
   container: HTMLElement;
   wrapper: HTMLElement;
@@ -65,7 +68,7 @@ export class XEditor implements Editor {
   keyboard: KeyboardManager;
   accessibility: AccessibilityManager;
   // private _initialized: boolean = false;
-  private autoSaveTimer?: NodeJS.Timeout;
+  private autoSaveTimer?: ReturnType<typeof setTimeout>;
 
   constructor(config: EditorConfig) {
     try {
@@ -263,13 +266,13 @@ export class XEditor implements Editor {
       }
     });
     
-    // Indent/Outdent commands
+    // Indent/Outdent commands - improved implementation
     this.commands.register('indent', {
-      execute: () => document.execCommand('indent', false)
+      execute: () => this.performIndent()
     });
     
     this.commands.register('outdent', {
-      execute: () => document.execCommand('outdent', false)
+      execute: () => this.performOutdent()
     });
     
     // Alignment commands
@@ -518,8 +521,17 @@ export class XEditor implements Editor {
       this.plugins.register(trackChangesPlugin);
     }
     
+    // Always register mobile optimization plugin
+    this.plugins.register(new MobileOptimizationPlugin());
+    
+    // Always register settings plugin
+    this.plugins.register(new SettingsPlugin());
+    
+    // Always register icons plugin (should be loaded early)
+    this.plugins.register(new IconsPlugin());
+    
     if (this.config.plugins) {
-      console.log('Additional plugin loading will be implemented');
+      // Additional plugin loading will be implemented
     }
   }
 
@@ -542,9 +554,9 @@ export class XEditor implements Editor {
         localStorage.setItem(key, content);
         localStorage.setItem(metaKey, JSON.stringify(metadata));
         this.events.emit('autosave', { content, metadata });
-      } catch (e) {
-        console.warn('AutoSave failed:', e);
-        this.events.emit('autosave:error', e);
+      } catch (error) {
+        // AutoSave failed
+        this.events.emit('autosave:error', error);
       }
     }, interval);
     
@@ -582,14 +594,14 @@ export class XEditor implements Editor {
       
       // Show recovery dialog
       this.showRecoveryDialog(saved, metadata);
-    } catch (e) {
-      console.error('Failed to check autosave:', e);
+    } catch (error) {
+      // Failed to check autosave
     }
   }
   
-  private showRecoveryDialog(content: string, metadata: any): void {
+  private showRecoveryDialog(content: string, metadata: { timestamp?: number; wordCount?: number }): void {
     const shouldRecover = confirm(
-      `Found autosaved content from ${metadata ? new Date(metadata.timestamp).toLocaleString() : 'previous session'}.\n\n` +
+      `Found autosaved content from ${metadata?.timestamp ? new Date(metadata.timestamp).toLocaleString() : 'previous session'}.\n\n` +
       `Words: ${metadata?.wordCount || 'unknown'}\n\n` +
       `Would you like to restore it?`
     );
@@ -665,18 +677,18 @@ export class XEditor implements Editor {
     // this._initialized = false;
   }
 
-  execCommand(command: string, value?: any): void {
+  execCommand(command: string, value?: unknown): void {
     const executeCommand = withErrorHandling(() => {
       this.selection.save();
       
       // Record state before command for better undo/redo
       if (command !== 'undo' && command !== 'redo') {
-        console.log(`[Editor] Recording state before command: ${command}`);
-        (this.history as any).recordImmediate();
+        // Recording state before command
+        (this.history as HistoryManagerImpl).recordImmediate();
       }
       
       if (command === 'insertHTML') {
-        document.execCommand('insertHTML', false, value);
+        document.execCommand('insertHTML', false, value as string);
       } else {
         this.commands.execute(command, value);
       }
@@ -693,8 +705,8 @@ export class XEditor implements Editor {
       // Record state after command
       if (command !== 'undo' && command !== 'redo') {
         setTimeout(() => {
-          console.log(`[Editor] Recording state after command: ${command}`);
-          (this.history as any).recordImmediate();
+          // Recording state after command
+          (this.history as HistoryManagerImpl).recordImmediate();
         }, 100);
       }
     }, `Failed to execute command: ${command}`);
@@ -706,18 +718,69 @@ export class XEditor implements Editor {
     return this.commands.queryState(command);
   }
 
-  on(event: string, handler: Function): void {
+  on(event: string, handler: (...args: unknown[]) => void): void {
     this.events.on(event, handler);
   }
 
-  off(event: string, handler: Function): void {
+  off(event: string, handler: (...args: unknown[]) => void): void {
     this.events.off(event, handler);
   }
 
-  emit(event: string, ...args: any[]): void {
+  emit(event: string, ...args: unknown[]): void {
     this.events.emit(event, ...args);
   }
   
+  // Custom indent/outdent implementation
+  private performIndent(): void {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    
+    // Find the closest block element
+    let blockElement = container.nodeType === Node.TEXT_NODE ? 
+      container.parentElement : container as Element;
+    
+    while (blockElement && !this.isBlockElement(blockElement)) {
+      blockElement = blockElement.parentElement;
+    }
+    
+    if (blockElement) {
+      const currentStyle = window.getComputedStyle(blockElement);
+      const currentMargin = parseInt(currentStyle.marginLeft) || 0;
+      (blockElement as HTMLElement).style.marginLeft = `${currentMargin + 40}px`;
+    }
+  }
+  
+  private performOutdent(): void {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    
+    // Find the closest block element
+    let blockElement = container.nodeType === Node.TEXT_NODE ? 
+      container.parentElement : container as Element;
+    
+    while (blockElement && !this.isBlockElement(blockElement)) {
+      blockElement = blockElement.parentElement;
+    }
+    
+    if (blockElement) {
+      const currentStyle = window.getComputedStyle(blockElement);
+      const currentMargin = parseInt(currentStyle.marginLeft) || 0;
+      const newMargin = Math.max(0, currentMargin - 40);
+      (blockElement as HTMLElement).style.marginLeft = newMargin > 0 ? `${newMargin}px` : '';
+    }
+  }
+  
+  private isBlockElement(element: Element): boolean {
+    const blockElements = ['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'UL', 'OL', 'BLOCKQUOTE'];
+    return blockElements.includes(element.tagName);
+  }
+
   print(): void {
     // Create a print-friendly window
     const printWindow = window.open('', '_blank', 'width=800,height=600');

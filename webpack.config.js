@@ -15,7 +15,7 @@ module.exports = (env, argv) => {
       path: path.resolve(__dirname, 'dist'),
       filename: isProduction ? '[name].min.js' : '[name].js',
       library: {
-        name: 'XEditor',
+        name: 'xEditor',
         type: 'umd',
         export: 'default'
       },
@@ -82,9 +82,16 @@ module.exports = (env, argv) => {
       })]
     },
     devServer: {
-      static: {
-        directory: path.join(__dirname, 'demo')
-      },
+      static: [
+        {
+          directory: path.join(__dirname, 'demo'),
+          publicPath: '/'
+        },
+        {
+          directory: path.join(__dirname, 'dist'),
+          publicPath: '/dist'
+        }
+      ],
       compress: true,
       port: 8080,
       hot: true,

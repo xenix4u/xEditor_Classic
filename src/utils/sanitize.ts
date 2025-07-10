@@ -31,7 +31,7 @@ export function sanitizeHTML(
   html: string,
   options: SanitizeOptions = {}
 ): string {
-  const config: any = {
+  const config: DOMPurify.Config & { ALLOWED_ATTR: string[] } = {
     ALLOWED_TAGS: options.allowedTags || DEFAULT_ALLOWED_TAGS,
     ALLOWED_ATTR: [],
     ALLOW_DATA_ATTR: true,
